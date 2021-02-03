@@ -1,53 +1,183 @@
 function Blackjack()
-        println("Welcome to Muskrat's Blackjack training game. The rules are simple, correctly identify the best option when given a certain set of cards. The options are 'hit', 'stand', 'split','double' and they are case sensitive")
+        println("Welcome to Muskrat's Blackjack training game.")
+        println("Have you ever played before? (y or n)")
+        PlayedBefore = readline()
+        while PlayedBefore != "y" && PlayedBefore != "n"
+                println("Sorry, that was not a valid input. Please try again!")
+                PlayedBefore = readline()
+                UhOh += 1
+                if UhOh > 1 && PlayedBefore != "y" && PlayedBefore != "n"
+                        println("Sorry, that was not a valid input. Please try again! Remember, the valid inputs are 'y' meaning you have played before, or 'n' you have not played before.")
+                        PlayedBefore = readline()
+                end
+        end
+        if PlayedBefore == "n"
+                println("The rules are simple, correctly identify the best option when given a certain set of cards. The options are 'hit', 'stand', 'split','double' and they are case sensitive.")
+                println("If you want to know the amount of 'correct' calls in a row you have gotten: type 'streak' when asked what you want to do.")
+                println("If you want to know your win/ loss stats: type 'stats' when asked what you want to do.")
+        end
         println("_____________________________________________________________")
-        #println("How many decks would you like to play with? (Number Value)")
-        #numofdecks_string = readline()
-        #numofdecks = parse(Int64, numofdecks_string)
-        numofdecks = 1
+        println("How many decks would you like to play with? (Number Value)")
+        numofdecks_string = readline()
+        numofdecks = parse(Int64, numofdecks_string)
+        #numofdecks = 1
         Play_Again = "y"
 
         # New Game Original Deck
+        streak = 0
+        longest_streak = 0
+        win_loss_ratio = [0 0 0]
         Deck, original_length = Shuffle(numofdecks)
 
         while Play_Again == "y"
                 #Initialize New Hand
-                AceFlag = 0
+                SplitFlag = 0
+                IdiotAlert = 0
                 Next_Card = 0
                 Next_Dealer_Card = 0
                 Tot_Next_Card = 0
                 Tot_Next_Dealer_Card = 0
                 Dealer_Sum = 0
+                First_Card1 = 0
+                Second_Card1 = 0
+                Second_Card1_Face = 0
+                Your_Sum1 = 0
+                First_Card2 = 0
+                Second_Card2 = 0
+                Second_Card2_Face = 0
+                Your_Sum2 = 0
+
                 abort = "NO"
                 What_You_Do = "Play"
 
                 #Deal Cards
-                First_Card, Second_Card, Dealer_Card, Second_Dealer_Card = PlayAgain(Deck)
-                Your_Sum = First_Card + Second_Card + Tot_Next_Card
+                First_Card, Second_Card, Dealer_Card, Second_Dealer_Card, CardFaces = PlayAgain(Deck,numofdecks)
+                Your_Sum = First_Card + Second_Card
 
                 #Check for Blackjack
                 if Your_Sum == 21
-                        abort = "YES"
+                        #You Have Blackjack
+                else
+
+                #Check for an Idiot
+                if Your_Sum == 22
+                        IdiotAlert == 1
                 end
 
-                #Ask: What do you do?
-                while abort != "YES"
-                        What_You_Do, Your_Sum = What_do_you_do(First_Card, Second_Card, Tot_Next_Card, Dealer_Card)
 
-                        if What_You_Do == "hit" && Your_Sum < 21 || What_You_Do == "double" && Your_Sum < 21
-                                Deck, Next_Card, Tot_Next_Card, Your_Sum = HitOrDouble(What_You_Do, Your_Sum, Deck, Tot_Next_Card)
-                                First_Card, Second_Card, Next_Card, Tot_Next_Card, Your_Sum, AceFlag = SomeoneHasAce(First_Card, Second_Card, Next_Card, Tot_Next_Card, Your_Sum, AceFlag)
-                        end
+                #Ask: What do you do when you don't have Blackjack
+                        while abort != "YES" || SplitFlag > 0
+                                if SplitFlag == 2
+                                        First_Card = First_Card1
+                                        Second_Card = Second_Card1
+                                        Your_Sum1 += Next_Card
+                                        if Tot_Next_Card == 0
+                                                println("Your FIRST hand has a ", CardFaces[1], " and a ", Second_Card1_Face, ". the Dealer still has a ", CardFaces[3])
 
-                        if Your_Sum > 20 || What_You_Do == "stand" || What_You_Do == "double" || What_You_Do == "split"
-                                abort = "YES"
+                                        end
+
+                                elseif SplitFlag == 1
+                                        if Your_Sum > 21 && Tot_Next_Card == 0 || What_You_Do == "stand" && Tot_Next_Card == 0 || What_You_Do == "double" && Tot_Next_Card == 0
+                                                Your_Sum1 += Next_Card
+                                        end
+
+
+                                        First_Card = First_Card2
+                                        Second_Card = Second_Card2
+                                        if Tot_Next_Card == 0
+                                                println("Done with FIRST hand.")
+                                                println("Your SECOND hand has a ", CardFaces[2], " and a ", Second_Card2_Face, ". the Dealer still has a ", CardFaces[3])
+
+                                        end
+                                end
+
+                                What_You_Do, Your_Sum, streak, longest_streak = What_do_you_do(First_Card, Second_Card, Tot_Next_Card, Dealer_Card, CardFaces, streak, longest_streak, win_loss_ratio)
+
+                                if What_You_Do == "split"
+                                        if SplitFlag == 0
+                                                SplitFlag += 2
+
+                                                First_Card1 = First_Card
+                                                Second_Card1_Index = rand(1:length(Deck))
+                                                Second_Card1 = Deck[Second_Card1_Index]
+                                                while Second_Card1 == 0
+                                                        if Second_Card1 == 0
+                                                                Second_Card1_Index = rand(1:length(Deck))
+                                                                Second_Card1 = Deck[Second_Card1_Index]
+                                                        end
+                                                end
+                                                Second_Card1_Face = Second_Card1
+                                                for j = 1:numofdecks
+                                                        if Second_Card1_Index > 36+52*(j-1) && Second_Card1_Index < 41+52*(j-1)
+                                                                Second_Card1_Face = "Jack"
+                                                        elseif Second_Card1_Index > 40+52*(j-1) && Second_Card1_Index < 45+52*(j-1)
+                                                                Second_Card1_Face = "Queen"
+                                                        elseif Second_Card1_Index > 44+52*(j-1) && Second_Card1_Index < 49+52*(j-1)
+                                                                Second_Card1_Face = "King"
+                                                        elseif Second_Card1_Index > 48+52*(j-1) && Second_Card1_Index < 53+52*(j-1)
+                                                                Second_Card1_Face = "Ace"
+                                                        end
+                                                end
+                                                Deck[Second_Card1_Index] = 0
+                                                Your_Sum1 = First_Card1 + Second_Card1
+
+                                                First_Card2 = Second_Card
+                                                Second_Card2_Index = rand(1:length(Deck))
+                                                Second_Card2 = Deck[Second_Card2_Index]
+                                                while Second_Card2 == 0
+                                                        if Second_Card2 == 0
+                                                                Second_Card2_Index = rand(1:length(Deck))
+                                                                Second_Card2 = Deck[Second_Card2_Index]
+                                                        end
+                                                end
+                                                Second_Card2_Face = Second_Card2
+                                                for j = 1:numofdecks
+                                                        if Second_Card2_Index > 36+52*(j-1) && Second_Card2_Index < 41+52*(j-1)
+                                                                Second_Card2_Face = "Jack"
+                                                        elseif Second_Card2_Index > 40+52*(j-1) && Second_Card2_Index < 45+52*(j-1)
+                                                                Second_Card2_Face = "Queen"
+                                                        elseif Second_Card2_Index > 44+52*(j-1) && Second_Card2_Index < 49+52*(j-1)
+                                                                Second_Card2_Face = "King"
+                                                        elseif Second_Card2_Index > 48+52*(j-1) && Second_Card2_Index < 53+52*(j-1)
+                                                                Second_Card2_Face = "Ace"
+                                                        end
+                                                end
+                                                Deck[Second_Card2_Index] = 0
+                                                Your_Sum2 = First_Card2 + Second_Card2
+                                        else
+                                                while What_You_Do == "split"
+                                                        println("Sorry, you can only split once per round. Please try again!")
+                                                        What_You_Do = readline()
+                                                end
+                                        end
+                                end
+
+                                if What_You_Do == "hit" && Your_Sum < 21 || What_You_Do == "double" && Your_Sum < 21 || IdiotAlert == 1
+                                        Deck, Next_Card, Tot_Next_Card, Your_Sum = NextCard(Your_Sum, Deck, numofdecks, Tot_Next_Card, SplitFlag)
+                                        First_Card, Second_Card, Next_Card, Tot_Next_Card, Your_Sum = SomeoneHasAce(First_Card, Second_Card, Next_Card, Tot_Next_Card, Your_Sum)
+                                        First_Card, Second_Card, Next_Card, Tot_Next_Card, Your_Sum = SomeoneHasAce(First_Card, Second_Card, Next_Card, Tot_Next_Card, Your_Sum)
+                                end
+
+                                if Your_Sum > 20 || What_You_Do == "stand" || What_You_Do == "double"
+                                        abort = "YES"
+                                        SplitFlag -= 1
+                                        Tot_Next_Card = 0
+                                end
                         end
+                end
+
+                if Your_Sum1 > Your_Sum && Your_Sum1 != 0
+                        Your_Sum2 = Your_Sum
+                elseif Your_Sum > Your_Sum1 && Your_Sum1 != 0
+                        Your_Sum2 = Your_Sum
+                        Your_Sum = Your_Sum1
                 end
 
                 #Dealer Plays When Players are Done
 
                 if First_Card + Second_Card == 21 || Your_Sum > 21
                         abort = "YES"
+                        println("The Dealer's Second Card is ", Second_Dealer_Card)
                         Dealer_Sum = Dealer_Card + Second_Dealer_Card + Next_Dealer_Card
                 else
                         abort = "NO"
@@ -55,31 +185,62 @@ function Blackjack()
                 end
 
                 while abort != "YES"
-                        Dealer_Sum, Deck, Next_Dealer_Card = Dealer(Dealer_Card, Second_Dealer_Card, Next_Dealer_Card, Tot_Next_Dealer_Card, Deck, Your_Sum)
-                        Dealer_Card, Second_Dealer_Card, Next_Dealer_Card, Tot_Next_Dealer_Card, Dealer_Sum, AceFlag = SomeoneHasAce(Dealer_Card, Second_Dealer_Card, Next_Dealer_Card, Tot_Next_Dealer_Card, Dealer_Sum, AceFlag)
+                        Dealer_Sum, Deck, Next_Dealer_Card = Dealer(Dealer_Card, Second_Dealer_Card, Next_Dealer_Card, Tot_Next_Dealer_Card, Deck, numofdecks, Your_Sum)
+                        Dealer_Card, Second_Dealer_Card, Next_Dealer_Card, Tot_Next_Dealer_Card, Dealer_Sum = SomeoneHasAce(Dealer_Card, Second_Dealer_Card, Next_Dealer_Card, Tot_Next_Dealer_Card, Dealer_Sum)
+                        First_Card, Second_Card, Next_Card, Tot_Next_Card, Your_Sum = SomeoneHasAce(First_Card, Second_Card, Next_Card, Tot_Next_Card, Your_Sum)
 
-                        if Dealer_Sum > 17 || Dealer_Sum == 17 || Your_Sum > 21
+                        if Dealer_Sum > 17 || Dealer_Sum == 17
                                 abort = "YES"
                         end
                 end
 
                 #Wrap Up
-                DidYouWin(Your_Sum, Dealer_Sum, Second_Dealer_Card, Tot_Next_Card)
-                Play_Again = Want2PlayAgain(Deck)
+                if Your_Sum1 != 0 || Your_Sum2 != 0
+                        SplitFlag = 3
+                else
+                        SplitFlag = 1
+                end
 
+                while SplitFlag > 0
+                        if SplitFlag == 3
+                                Your_Sum = Your_Sum1
+                                SplitFlag -= 1
+                        elseif SplitFlag == 2
+                                Your_Sum = Your_Sum2
+                                SplitFlag -= 2
+                        else
+                                SplitFlag -= 1
+                        end
+                        win_loss_ratio = DidYouWin(Your_Sum, Dealer_Sum, Second_Dealer_Card, Tot_Next_Card, win_loss_ratio)
+                end
+
+                Play_Again, Deck = Want2PlayAgain(Deck)
+
+                ShuffleFlag = 0
                 #Time to Shuffle Decks?
-                if length(Deck) < 0.5 * original_length
+                for i = 1:length(Deck)
+                        if Deck[i] == 0
+                                ShuffleFlag += 1
+                        end
+                end
+
+                if ShuffleFlag > 0.5 * original_length
+                        println("Shuffle Time")
                         Deck, original_length = Shuffle(numofdecks)
                 end
         end
 end
 
 function Shuffle(numofdecks)
-        Deck = [2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 6, 6, 6, 6, 7, 7, 7, 7, 8, 8, 8, 8, 9, 9, 9, 9, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 11, 11, 11, 11]
-        #Deck2 = [2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 6, 6, 6, 6, 7, 7, 7, 7, 8, 8, 8, 8, 9, 9, 9, 9, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 11, 11, 11, 11]
+        Jack = 10
+        Queen = 10
+        King = 10
+
+        Deck = [2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 6, 6, 6, 6, 7, 7, 7, 7, 8, 8, 8, 8, 9, 9, 9, 9, 10, 10, 10, 10, Jack, Jack, Jack, Jack, Queen, Queen, Queen, Queen, King, King, King, King, 11, 11, 11, 11]
+        Deck2 = [2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 6, 6, 6, 6, 7, 7, 7, 7, 8, 8, 8, 8, 9, 9, 9, 9, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 11, 11, 11, 11]
 
         if numofdecks > 1
-                for i = numofdecks
+                for i = numofdecks - 1
                         append!(Deck,Deck2)
                 end
         end
@@ -88,48 +249,141 @@ function Shuffle(numofdecks)
         return Deck, original_length
 end
 
-function PlayAgain(Deck)
-        First_Card_Index  = rand(1:length(Deck))
+function PlayAgain(Deck,numofdecks)
+        First_Card_Index = rand(1:length(Deck))
         First_Card = Deck[First_Card_Index]
-        deleteat!(Deck,First_Card_Index)
+        while First_Card == 0
+                if First_Card == 0
+                        First_Card_Index = rand(1:length(Deck))
+                        First_Card = Deck[First_Card_Index]
+                end
+        end
+        CardFace1 = First_Card
+        for j = 1:numofdecks
+                if First_Card_Index > 36+52*(j-1) && First_Card_Index < 41+52*(j-1)
+                        CardFace1 = "Jack"
+                elseif First_Card_Index > 40+52*(j-1) && First_Card_Index < 45+52*(j-1)
+                        CardFace1 = "Queen"
+                elseif First_Card_Index > 44+52*(j-1) && First_Card_Index < 49+52*(j-1)
+                        CardFace1 = "King"
+                elseif First_Card_Index > 48+52*(j-1) && First_Card_Index < 53+52*(j-1)
+                        CardFace1 = "Ace"
+                end
+        end
+        Deck[First_Card_Index] = 0
+
 
         Dealer_Card_Index = rand(1:length(Deck))
         Dealer_Card = Deck[Dealer_Card_Index]
-        deleteat!(Deck,Dealer_Card_Index)
+        while Dealer_Card == 0
+                if Dealer_Card == 0
+                        Dealer_Card_Index = rand(1:length(Deck))
+                        Dealer_Card = Deck[Dealer_Card_Index]
+                end
+        end
+        CardFaceDealer1 = Dealer_Card
+        for j = 1:numofdecks
+                if Dealer_Card_Index > 36+52*(j-1) && Dealer_Card_Index < 41+52*(j-1)
+                        CardFaceDealer1 = "Jack"
+                elseif Dealer_Card_Index > 40+52*(j-1) && Dealer_Card_Index < 45+52*(j-1)
+                        CardFaceDealer1 = "Queen"
+                elseif Dealer_Card_Index > 44+52*(j-1) && Dealer_Card_Index < 49+52*(j-1)
+                        CardFaceDealer1 = "King"
+                elseif Dealer_Card_Index > 48+52*(j-1) && Dealer_Card_Index < 53+52*(j-1)
+                        CardFaceDealer1 = "Ace"
+                end
+        end
+        Deck[Dealer_Card_Index] = 0
 
         Second_Card_Index = rand(1:length(Deck))
         Second_Card = Deck[Second_Card_Index]
-        deleteat!(Deck, Second_Card_Index)
+        while Second_Card == 0
+                if Second_Card == 0
+                        Second_Card_Index = rand(1:length(Deck))
+                        Second_Card = Deck[Second_Card_Index]
+                end
+        end
+        CardFace2 = Second_Card
+        for j = 1:numofdecks
+                if Second_Card_Index > 36+52*(j-1) && Second_Card_Index < 41+52*(j-1)
+                        CardFace2 = "Jack"
+                elseif Second_Card_Index > 40+52*(j-1) && Second_Card_Index < 45+52*(j-1)
+                        CardFace2 = "Queen"
+                elseif Second_Card_Index > 44+52*(j-1) && Second_Card_Index < 49+52*(j-1)
+                        CardFace2 = "King"
+                elseif Second_Card_Index > 48+52*(j-1) && Second_Card_Index < 53+52*(j-1)
+                        CardFace2 = "Ace"
+                end
+        end
+        Deck[Second_Card_Index] = 0
 
         Second_Dealer_Card_Index = rand(1:length(Deck))
         Second_Dealer_Card = Deck[Second_Dealer_Card_Index]
-        deleteat!(Deck, Second_Dealer_Card_Index)
+        while Second_Dealer_Card == 0
+                if Second_Dealer_Card == 0
+                        Second_Dealer_Card_Index = rand(1:length(Deck))
+                        Second_Dealer_Card = Deck[Second_Dealer_Card_Index]
+                end
+        end
+        CardFaceDealer2 = Second_Dealer_Card
+        for j = 1:numofdecks
+                if Second_Dealer_Card_Index > 36+52*(j-1) && Second_Dealer_Card_Index < 41+52*(j-1)
+                        CardFaceDealer2 = "Jack"
+                elseif Second_Dealer_Card_Index > 40+52*(j-1) && Second_Dealer_Card_Index < 45+52*(j-1)
+                        CardFaceDealer2 = "Queen"
+                elseif Second_Dealer_Card_Index > 44+52*(j-1) && Second_Dealer_Card_Index < 49+52*(j-1)
+                        CardFaceDealer2 = "King"
+                elseif Second_Dealer_Card_Index > 48+52*(j-1) && Second_Dealer_Card_Index < 53+52*(j-1)
+                        CardFaceDealer2 = "Ace"
+                end
+        end
+        Deck[Second_Dealer_Card_Index] = 0
 
+        CardFaces = [CardFace1,CardFace2,CardFaceDealer1,CardFaceDealer2]
         Your_Sum = First_Card + Second_Card
-        println("Your Cards are ", First_Card, " and ", Second_Card, " Dealer's Card is ",Dealer_Card)
-        return First_Card, Second_Card, Dealer_Card, Second_Dealer_Card
+        println("Your Cards are ", CardFaces[1], " and ", CardFaces[2], " Dealer's Card is ",CardFaces[3])
+        return First_Card, Second_Card, Dealer_Card, Second_Dealer_Card, CardFaces
 end
 
-function Dealer(Dealer_Card, Second_Dealer_Card, Next_Dealer_Card, Tot_Next_Dealer_Card, Deck, Your_Sum)
+function Dealer(Dealer_Card, Second_Dealer_Card, Next_Dealer_Card, Tot_Next_Dealer_Card, Deck, numofdecks, Your_Sum)
         Dealer_Sum = Dealer_Card + Second_Dealer_Card + Next_Dealer_Card
 
         while Dealer_Sum < 17 && Your_Sum < 22
                 Next_Dealer_Card_Index  = rand(1:length(Deck))
                 Next_Dealer_Card = Deck[Next_Dealer_Card_Index]
+                while Next_Dealer_Card == 0
+                        if Next_Dealer_Card == 0
+                                Next_Dealer_Card_Index = rand(1:length(Deck))
+                                Next_Dealer_Card = Deck[Next_Dealer_Card_Index]
+                        end
+                end
                 Tot_Next_Dealer_Card += Next_Dealer_Card
                 Dealer_Sum += Next_Dealer_Card
-                deleteat!(Deck,Next_Dealer_Card_Index)
-                println("The Dealer's Next Card is ", Next_Dealer_Card)
+                CardFaceDealerNext = Next_Dealer_Card
+                for j = 1:numofdecks
+                        if Next_Dealer_Card_Index > 36+52*(j-1) && Next_Dealer_Card_Index < 41+52*(j-1)
+                                CardFaceDealerNext = "Jack"
+                        elseif Next_Dealer_Card_Index > 40+52*(j-1) && Next_Dealer_Card_Index < 45+52*(j-1)
+                                CardFaceDealerNext = "Queen"
+                        elseif Next_Dealer_Card_Index > 44+52*(j-1) && Next_Dealer_Card_Index < 49+52*(j-1)
+                                CardFaceDealerNext = "King"
+                        elseif Next_Dealer_Card_Index > 48+52*(j-1) && Next_Dealer_Card_Index < 53+52*(j-1)
+                                CardFaceDealerNext = "Ace"
+                        end
+                end
+                Deck[Next_Dealer_Card_Index] = 0
+                println("The Dealer's Next Card is ", CardFaceDealerNext)
         end
         return Dealer_Sum, Deck, Next_Dealer_Card
 end
 
-function SomeoneHasAce(Card1, Card2, CardNew, TotCardNew, CardSum, AceFlag)
+function SomeoneHasAce(Card1, Card2, CardNew, TotCardNew, CardSum)
         abort = "NO"
+        AceFlag = 0
         while abort != "YES"
                 for i in [Card1 Card2 CardNew]
                         if i == 11
-                                AceFlag += 1
+                                AceFlag = 1
                         end
                 end
 
@@ -137,54 +391,103 @@ function SomeoneHasAce(Card1, Card2, CardNew, TotCardNew, CardSum, AceFlag)
                         abort = "YES"
                 end
 
-                while AceFlag > 1
+                while AceFlag != 0
                         if Card1 == 11
                                 if CardSum > 21
                                         Card1 = 1
-                                        CardSum = Card1 + Card2 + CardNew
-                                        AceFlag -= 1
+                                        CardSum = Card1 + Card2 + TotCardNew
+                                        #AceFlag -= 1
                                 end
                         elseif Card2 == 11
                                 if CardSum > 21
                                         Card2 = 1
-                                        CardSum = Card1 + Card2 + CardNew
-                                        AceFlag -= 1
+                                        CardSum = Card1 + Card2 + TotCardNew
+                                        #AceFlag -= 1
                                 end
                         elseif CardNew == 11
                                 if CardSum > 21
                                         CardNew = 1
                                         TotCardNew -= 10
                                         CardSum = Card1 + Card2 + TotCardNew
-                                        AceFlag -= 1
+                                        #AceFlag -= 1
                                 end
                         end
-                end
 
-                if CardSum < 22
-                        abort = "YES"
+                        if CardSum < 22
+                                abort = "YES"
+                                AceFlag = 0
+                        end
                 end
         end
-        return Card1, Card2, CardNew, TotCardNew, CardSum, AceFlag
+        return Card1, Card2, CardNew, TotCardNew, CardSum
 end
 
-function What_do_you_do(First_Card, Second_Card, Tot_Next_Card, Dealer_Card)
+function What_do_you_do(First_Card, Second_Card, Tot_Next_Card, Dealer_Card, CardFaces, streak, longest_streak, win_loss_ratio)
 
         Your_Sum = First_Card + Second_Card + Tot_Next_Card
         println("What Do You Do?")
 
         What_You_Do = readline()
+
         UhOh = 0
         while What_You_Do != "hit" && What_You_Do != "stand" && What_You_Do != "double" && What_You_Do != "split"
-                println("Sorry, that was not a valid input. Please try again!")
-                What_You_Do = readline()
-                UhOh += 1
-                if UhOh > 1 && What_You_Do != "hit" && What_You_Do != "stand" && What_You_Do != "double" && What_You_Do != "split"
-                        println("Sorry, that was not a valid input. Please try again! Remember, the valid inputs are 'hit', 'stand', 'double', or 'split' and they are case sensitive.")
+                if What_You_Do == "streak"
+                        println("Your current correct call streak is: ",streak," and your longest correct call streak is ", longest_streak)
+                        println("Now that you know your streak stat... What do you do now?")
+                        What_You_Do = readline()
+                        UhOh += 1
+                        if What_You_Do == "streak" && UhOh > 1 && UhOh < 5
+                                println("Are you dumb? I just showed you your correct call streak stats... Literally nothing has changed... Please play the game and stop being a moron.")
+                                UhOh += 1
+                                What_You_Do = readline()
+                        end
+                        if What_You_Do == "streak" && UhOh > 5
+                                println("Alright since you are an idiot maybe you will be entertained by this...")
+                                println("You found my Easter Egg... Cool I guess? You should probably focus more on your Blackjack though...")
+                                What_You_Do = readline()
+                        end
+
+                elseif What_You_Do == "stats"
+                        percent = round(win_loss_ratio[1]/sum(win_loss_ratio)*100, digits = 2)
+                        println("You have won ",win_loss_ratio[1]," games, lost ", win_loss_ratio[2], " and tied ", win_loss_ratio[3],". This makes your win/loss record ", percent,"%")
+                        println("Now that you know your wins stats... What do you do now?")
+                        What_You_Do = readline()
+                        UhOh += 1
+                        if What_You_Do == "stats" && UhOh > 1
+                                println("Are you dumb? I just showed you your win/loss stats... Literally nothing has changed... Please play the game and stop being a moron.")
+                                UhOh += 1
+                                What_You_Do = readline()
+                        end
+                else
+                        println("Sorry, that was not a valid input. Please try again!")
+                        What_You_Do = readline()
+                        UhOh += 1
+                        if UhOh > 1 && What_You_Do != "hit" && What_You_Do != "stand" && What_You_Do != "double" && What_You_Do != "split"
+                                println("Sorry, that was not a valid input. Please try again! Remember, the valid inputs are 'hit', 'stand', 'double', or 'split' and they are case sensitive.")
+                                What_You_Do = readline()
+                        end
+                end
+        end
+
+        if CardFaces[1] != CardFaces[2]
+                while What_You_Do == "split"
+                        println("Sorry, You can't Split right now... Try Again!")
                         What_You_Do = readline()
                 end
         end
 
-        if First_Card == Second_Card && Tot_Next_Card == 0
+        if Tot_Next_Card != 0
+                while What_You_Do == "double"
+                        println("Sorry, You can't Double down right now... Try Again!")
+                        What_You_Do = readline()
+                end
+                while What_You_Do == "split"
+                        println("Sorry, You can't Split right now... Try Again!")
+                        What_You_Do = readline()
+                end
+        end
+
+        if CardFaces[1] == CardFaces[2] && Tot_Next_Card == 0
                 if First_Card < 4
                         if Dealer_Card < 8
                                 correct = "split"
@@ -192,7 +495,7 @@ function What_do_you_do(First_Card, Second_Card, Tot_Next_Card, Dealer_Card)
                                 correct = "hit"
                         end
                 elseif First_Card == 4
-                        if Dealer_Card == 5 || 6
+                        if Dealer_Card == 5 || Dealer_Card == 6
                                 correct = "split"
                         else
                                 correct = "hit"
@@ -304,11 +607,6 @@ function What_do_you_do(First_Card, Second_Card, Tot_Next_Card, Dealer_Card)
 
                 elseif Your_Sum > 16
                         correct = "stand"
-                        if Your_Sum == 21
-                                What_You_Do = "stand"
-                        elseif Your_Sum > 21
-                                println("test bust")
-                        end
 
                 else
                         if Dealer_Card < 7
@@ -319,58 +617,68 @@ function What_do_you_do(First_Card, Second_Card, Tot_Next_Card, Dealer_Card)
                 end
         end
 
-        if First_Card != Second_Card
-                while What_You_Do == "split"
-                        println("Sorry, You Can't Split right now... Try Again!")
-                        What_You_Do = readline()
-                end
-        end
-
-        if Tot_Next_Card != 0
-                while What_You_Do == "double"
-                        println("Sorry, You Can't Double down right now... Try Again!")
-                        What_You_Do = readline()
-                end
-                while What_You_Do == "split"
-                        println("Sorry, You Can't Split right now... Try Again!")
-                        What_You_Do = readline()
-                end
-        end
-
         if correct == What_You_Do
                 println("CORRECT")
+                streak += 1
+                if streak > longest_streak
+                        longest_streak = streak
+                end
         else
                 println("WRONG... The correct answer is *", correct,"*")
+                streak = 0
         end
 
-        return What_You_Do, Your_Sum
+        return What_You_Do, Your_Sum, streak, longest_streak
 end
 
-function HitOrDouble(What_You_Do, Your_Sum, Deck, Tot_Next_Card)
-        if What_You_Do == "hit" || What_You_Do == "double"
-                Next_Card_Index  = rand(1:length(Deck))
-                Next_Card = Deck[Next_Card_Index]
-                deleteat!(Deck, Next_Card_Index)
-                Your_Sum += Next_Card
-                Tot_Next_Card += Next_Card
-                println("Your Next Card is ", Next_Card)
-                return Deck, Next_Card, Tot_Next_Card, Your_Sum
+function NextCard(Your_Sum, Deck, numofdecks, Tot_Next_Card, SplitFlag)
+        Next_Card_Index = rand(1:length(Deck))
+        Next_Card = Deck[Next_Card_Index]
+        while Next_Card == 0
+                if Next_Card == 0
+                        Next_Card_Index = rand(1:length(Deck))
+                        Next_Card = Deck[Next_Card_Index]
+                end
         end
+        CardFaceNext = Next_Card
+        for j = 1:numofdecks
+                if Next_Card_Index > 36+52*(j-1) && Next_Card_Index < 41+52*(j-1)
+                        CardFaceNext = "Jack"
+                elseif Next_Card_Index > 40+52*(j-1) && Next_Card_Index < 45+52*(j-1)
+                        CardFaceNext = "Queen"
+                elseif Next_Card_Index > 44+52*(j-1) && Next_Card_Index < 49+52*(j-1)
+                        CardFaceNext = "King"
+                elseif Next_Card_Index > 48+52*(j-1) && Next_Card_Index < 53+52*(j-1)
+                        CardFaceNext = "Ace"
+                end
+        end
+        Deck[Next_Card_Index] = 0
+        Your_Sum += Next_Card
+        Tot_Next_Card += Next_Card
+        println("Your Next Card is ", CardFaceNext)
+        return Deck, Next_Card, Tot_Next_Card, Your_Sum
 end
 
-function DidYouWin(Your_Sum, Dealer_Sum, Second_Dealer_Card, Tot_Next_Card)
+function DidYouWin(Your_Sum, Dealer_Sum, Second_Dealer_Card, Tot_Next_Card, win_loss_ratio)
+        win = win_loss_ratio[1]
+        loss = win_loss_ratio[2]
+        tie = win_loss_ratio[3]
         println("Dealer has ", Dealer_Sum," You have ",Your_Sum)
         if Your_Sum > 21
                 println("BUST!")
+                loss += 1
         elseif Dealer_Sum > 21 || Your_Sum > Dealer_Sum
                 println("WINNER!")
-        elseif Your_Sum == 21 && Tot_Next_Card == 0
-                println("BLACKJACK!")
+                win += 1
         elseif Dealer_Sum == Your_Sum
                 println("PUSH!")
+                tie += 1
         else
                 println("LOSER!")
+                loss += 1
         end
+        win_loss_ratio = [win loss tie]
+        return win_loss_ratio
 end
 
 function Want2PlayAgain(Deck)
@@ -394,5 +702,5 @@ function Want2PlayAgain(Deck)
                 println("_____________________________________________________________")
                 println("Thanks for Playing!")
         end
-        return Play_Again
+        return Play_Again, Deck
 end
