@@ -13,8 +13,9 @@ function Blackjack()
         end
         if PlayedBefore == "n"
                 println("The rules are simple, correctly identify the best option when given a certain set of cards. The options are 'hit', 'stand', 'split','double' and they are case sensitive.")
-                println("If you want to know the amount of 'correct' calls in a row you have gotten: type 'streak' when asked what you want to do.")
-                println("If you want to know your win/ loss stats: type 'stats' when asked what you want to do.")
+                println("Keep in mind, this game aims to replicate the thought process one needs to have while actually playing, so it is your job to keep track of your running card sum.") 
+                println("If you want to know the amount of 'correct' decisions you have made in a row, type 'streak' when asked what you want to do.")
+                println("If you want to know your win/ loss stats, type 'stats' when asked what you want to do.")
         end
         println("_____________________________________________________________")
         println("How many decks would you like to play with? (Number Value)")
@@ -226,7 +227,7 @@ function Blackjack()
                 end
 
                 if ShuffleFlag > 0.5 * original_length
-                        println("Shuffle Time")
+                        println("The Deck was just shuffled.")
                         Deck, original_length = Shuffle(numofdecks)
                 end
         end
