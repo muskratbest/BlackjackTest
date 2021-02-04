@@ -31,6 +31,7 @@ function Blackjack()
 
         while Play_Again == "y"
                 #Initialize New Hand
+                BlackjackFlag = 0
                 SplitFlag = 0
                 IdiotAlert = 0
                 Next_Card = 0
@@ -56,7 +57,7 @@ function Blackjack()
 
                 #Check for Blackjack
                 if Your_Sum == 21
-                        #You Have Blackjack
+                        BlackjackFlag = 1 #You Have Blackjack
                 else
 
                 #Check for an Idiot
@@ -211,7 +212,7 @@ function Blackjack()
                         else
                                 SplitFlag -= 1
                         end
-                        win_loss_ratio = DidYouWin(Your_Sum, Dealer_Sum, Second_Dealer_Card, Tot_Next_Card, win_loss_ratio)
+                        win_loss_ratio = DidYouWin(Your_Sum, Dealer_Sum, Second_Dealer_Card, Tot_Next_Card, win_loss_ratio, BlackjackFlag)
                 end
 
                 Play_Again, Deck = Want2PlayAgain(Deck)
@@ -443,7 +444,7 @@ function What_do_you_do(First_Card, Second_Card, Tot_Next_Card, Dealer_Card, Car
                         end
                         if What_You_Do == "streak" && UhOh > 5
                                 println("Alright since you are an idiot maybe you will be entertained by this...")
-                                println("You found my Easter Egg... Cool I guess? You should probably focus more on your Blackjack though...")
+                                println("You found my Easter Egg... Cool I guess? You should probably focus more on your Blackjack though... You have lost ", win_loss_ratio[2], " times...")
                                 What_You_Do = readline()
                         end
 
@@ -659,7 +660,7 @@ function NextCard(Your_Sum, Deck, numofdecks, Tot_Next_Card, SplitFlag)
         return Deck, Next_Card, Tot_Next_Card, Your_Sum
 end
 
-function DidYouWin(Your_Sum, Dealer_Sum, Second_Dealer_Card, Tot_Next_Card, win_loss_ratio)
+function DidYouWin(Your_Sum, Dealer_Sum, Second_Dealer_Card, Tot_Next_Card, win_loss_ratio, BlackjackFlag)
         win = win_loss_ratio[1]
         loss = win_loss_ratio[2]
         tie = win_loss_ratio[3]
@@ -667,6 +668,17 @@ function DidYouWin(Your_Sum, Dealer_Sum, Second_Dealer_Card, Tot_Next_Card, win_
         if Your_Sum > 21
                 println("BUST!")
                 loss += 1
+        elseif Dealer_Sum == 21
+                if BlackjackFlag == 1
+                        println("PUSH!")
+                        tie += 1
+                else
+                        println("LOSER!")
+                        loss += 1
+                end
+        elseif BlackjackFlag == 1
+                println("BLACKJACK!")
+                win += 1
         elseif Dealer_Sum > 21 || Your_Sum > Dealer_Sum
                 println("WINNER!")
                 win += 1
