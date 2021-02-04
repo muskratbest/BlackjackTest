@@ -12,7 +12,8 @@ function Blackjack()
                 end
         end
         if PlayedBefore == "n"
-                println("The rules are simple, correctly identify the best option when given a certain set of cards. The options are 'hit', 'stand', 'split','double' and they are case sensitive.")
+                println("The rules of Blackjack are simple, get as close to a total of 21 without going over. To win all you need is a higher total than the dealer. But if you have less, or 'bust' by going over you lose. A tie with the dealer results in a 'push' where nobody wins.") 
+                println("For this game, the goal is to correctly identify the best option when given a certain set of cards. The options are 'hit', 'stand', 'split','double' and they are case sensitive.")
                 println("Keep in mind, this game aims to replicate the thought process one needs to have while actually playing, so it is your job to keep track of your running card sum.") 
                 println("If you want to know the amount of 'correct' decisions you have made in a row, type 'streak' when asked what you want to do.")
                 println("If you want to know your win/ loss stats, type 'stats' when asked what you want to do.")
