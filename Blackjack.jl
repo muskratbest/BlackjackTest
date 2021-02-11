@@ -1,6 +1,6 @@
 function Blackjack()
-        println("Welcome to Muskrat's Blackjack training game.
-Have you ever played before? (y or n)")
+        println("Welcome to Muskrat's Blackjack training game.")
+        println("Have you ever played before? (y or n)")
         PlayedBefore = readline()
         UhOh = 0
         while PlayedBefore != "y" && PlayedBefore != "n"
@@ -35,8 +35,8 @@ Have you ever played before? (y or n)")
                 end
 
         end
-        println("_____________________________________________________________
-How many decks would you like to play with? (Number Value)")
+        println("__________________________________________________________")
+        println("How many decks would you like to play with? (Number Value)")
         numofdecks_string = readline()
         numofdecks = parse(Int64, numofdecks_string)
         #numofdecks = 1
@@ -491,7 +491,7 @@ function What_do_you_do(First_Card, Second_Card, Tot_Next_Card, Dealer_Card, Car
                         println("Now that you have seen the tutorial again... What do you do now?")
                         What_You_Do = readline()
                         UhOh += 1
-                        if What_You_Do == "chart" && UhOh > 1
+                        if What_You_Do == "help" && UhOh > 1
                                 println("Are you dumb? The tutorial is literally right above this... Please play the game and stop being a moron. It takes up a lot of space...")
                                 UhOh += 1
                                 What_You_Do = readline()
