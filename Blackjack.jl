@@ -1,7 +1,8 @@
 function Blackjack()
-        println("Welcome to Muskrat's Blackjack training game.")
-        println("Have you ever played before? (y or n)")
+        println("Welcome to Muskrat's Blackjack training game.
+Have you ever played before? (y or n)")
         PlayedBefore = readline()
+        UhOh = 0
         while PlayedBefore != "y" && PlayedBefore != "n"
                 println("Sorry, that was not a valid input. Please try again!")
                 PlayedBefore = readline()
@@ -12,14 +13,30 @@ function Blackjack()
                 end
         end
         if PlayedBefore == "n"
-                println("The rules of Blackjack are simple, get as close to a total of 21 without going over. To win all you need is a higher total than the dealer. But if you have less, or 'bust' by going over you lose. A tie with the dealer results in a 'push' where nobody wins.") 
-                println("For this game, the goal is to correctly identify the best option when given a certain set of cards. The options are 'hit', 'stand', 'split','double' and they are case sensitive.")
-                println("Keep in mind, this game aims to replicate the thought process one needs to have while actually playing, so it is your job to keep track of your running card sum.") 
-                println("If you want to know the amount of 'correct' decisions you have made in a row, type 'streak' when asked what you want to do.")
-                println("If you want to know your win/ loss stats, type 'stats' when asked what you want to do.")
+                Rules()
+                println("Would you like to see the Basic Strategy Chart before playing? (y or n)")
+                chart = readline()
+                while PlayedBefore != "y" && PlayedBefore != "n"
+                        println("Sorry, that was not a valid input. Please try again!")
+                        PlayedBefore = readline()
+                        UhOh += 1
+                        if UhOh > 1 && PlayedBefore != "y" && PlayedBefore != "n"
+                                println("Sorry, that was not a valid input. Please try again! Remember, the valid inputs are 'y' meaning you have played before, or 'n' you have not played before.")
+                                PlayedBefore = readline()
+                        end
+                end
+                if chart == "y"
+                        println("___________________________________________________________")
+                        println("Here it is! I recommend taking a picture it'll last longer.")
+                        SeeChart()
+                elseif chart == "n"
+                        println("_________________________________________")
+                        println("Okay sounds good. Good luck and have fun!")
+                end
+
         end
-        println("_____________________________________________________________")
-        println("How many decks would you like to play with? (Number Value)")
+        println("_____________________________________________________________
+How many decks would you like to play with? (Number Value)")
         numofdecks_string = readline()
         numofdecks = parse(Int64, numofdecks_string)
         #numofdecks = 1
@@ -28,7 +45,7 @@ function Blackjack()
         # New Game Original Deck
         streak = 0
         longest_streak = 0
-        win_loss_ratio = [0 0 0]
+        win_loss_ratio = [0 0 0] #[win, loss, tie]
         Deck, original_length = Shuffle(numofdecks)
 
         while Play_Again == "y"
@@ -180,18 +197,17 @@ function Blackjack()
 
                 if First_Card + Second_Card == 21 || Your_Sum > 21
                         abort = "YES"
-                        println("The Dealer's Second Card is ", Second_Dealer_Card)
+                        println("The Dealer's Second Card is ", CardFaces[4])
                         Dealer_Sum = Dealer_Card + Second_Dealer_Card + Next_Dealer_Card
                 else
                         abort = "NO"
-                        println("The Dealer's Second Card is ", Second_Dealer_Card)
+                        println("The Dealer's Second Card is ", CardFaces[4])
                 end
 
                 while abort != "YES"
                         Dealer_Sum, Deck, Next_Dealer_Card = Dealer(Dealer_Card, Second_Dealer_Card, Next_Dealer_Card, Tot_Next_Dealer_Card, Deck, numofdecks, Your_Sum)
                         Dealer_Card, Second_Dealer_Card, Next_Dealer_Card, Tot_Next_Dealer_Card, Dealer_Sum = SomeoneHasAce(Dealer_Card, Second_Dealer_Card, Next_Dealer_Card, Tot_Next_Dealer_Card, Dealer_Sum)
-                        First_Card, Second_Card, Next_Card, Tot_Next_Card, Your_Sum = SomeoneHasAce(First_Card, Second_Card, Next_Card, Tot_Next_Card, Your_Sum)
-
+                        Dealer_Card, Second_Dealer_Card, Next_Dealer_Card, Tot_Next_Dealer_Card, Dealer_Sum = SomeoneHasAce(Dealer_Card, Second_Dealer_Card, Next_Dealer_Card, Tot_Next_Dealer_Card, Dealer_Sum)
                         if Dealer_Sum > 17 || Dealer_Sum == 17
                                 abort = "YES"
                         end
@@ -228,7 +244,7 @@ function Blackjack()
                 end
 
                 if ShuffleFlag > 0.5 * original_length
-                        println("The Deck was just shuffled.")
+                        println("Shuffle Time")
                         Deck, original_length = Shuffle(numofdecks)
                 end
         end
@@ -434,33 +450,35 @@ function What_do_you_do(First_Card, Second_Card, Tot_Next_Card, Dealer_Card, Car
 
         UhOh = 0
         while What_You_Do != "hit" && What_You_Do != "stand" && What_You_Do != "double" && What_You_Do != "split"
-                if What_You_Do == "streak"
+                if What_You_Do == "stats"
+                        percent = round(win_loss_ratio[1]/sum(win_loss_ratio)*100, digits = 2)
                         println("Your current correct call streak is: ",streak," and your longest correct call streak is ", longest_streak)
-                        println("Now that you know your streak stat... What do you do now?")
+                        println("You have won ",win_loss_ratio[1]," games, lost ", win_loss_ratio[2], " and tied ", win_loss_ratio[3],". This makes your win/loss record ", percent,"%")
+                        println("Now that you know your  stats... What do you do now?")
                         What_You_Do = readline()
                         UhOh += 1
-                        if What_You_Do == "streak" && UhOh > 1 && UhOh < 5
-                                println("Are you dumb? I just showed you your correct call streak stats... Literally nothing has changed... Please play the game and stop being a moron.")
+                        if What_You_Do == "stats" && UhOh > 1
+                                println("Are you dumb? I just showed you your stats... Literally nothing has changed... Please play the game and stop being a moron.")
                                 UhOh += 1
                                 What_You_Do = readline()
                         end
-                        if What_You_Do == "streak" && UhOh > 5
+                        if What_You_Do == "stats" && UhOh > 5
                                 println("Alright since you are an idiot maybe you will be entertained by this...")
                                 println("You found my Easter Egg... Cool I guess? You should probably focus more on your Blackjack though... You have lost ", win_loss_ratio[2], " times...")
                                 What_You_Do = readline()
                         end
 
-                elseif What_You_Do == "stats"
-                        percent = round(win_loss_ratio[1]/sum(win_loss_ratio)*100, digits = 2)
-                        println("You have won ",win_loss_ratio[1]," games, lost ", win_loss_ratio[2], " and tied ", win_loss_ratio[3],". This makes your win/loss record ", percent,"%")
-                        println("Now that you know your wins stats... What do you do now?")
+                elseif What_You_Do == "chart"
+                        SeeChart()
+                        println("Now that you have seen the Basic Strategy Chart... What do you do now?")
                         What_You_Do = readline()
                         UhOh += 1
-                        if What_You_Do == "stats" && UhOh > 1
-                                println("Are you dumb? I just showed you your win/loss stats... Literally nothing has changed... Please play the game and stop being a moron.")
+                        if What_You_Do == "chart" && UhOh > 1
+                                println("Are you dumb? The chart is literally right above this... Please play the game and stop being a moron. It takes up a lot of space...")
                                 UhOh += 1
                                 What_You_Do = readline()
                         end
+
                 else
                         println("Sorry, that was not a valid input. Please try again!")
                         What_You_Do = readline()
@@ -717,4 +735,78 @@ function Want2PlayAgain(Deck)
                 println("Thanks for Playing!")
         end
         return Play_Again, Deck
+end
+
+function Rules()
+        println("_____________________________________________________________________________________________________________________________________________________________
+This is a game intended for any skill level, and is an easy, fun, and informative way to learn the game of Blackjack, and various advantaged play strategies.
+
+        The rules for this game are simple, correctly identify the best option when given a certain set of cards.
+                Commands:
+                        Your input options are 'hit', 'stand', 'split','double' and they are case sensitive.
+                        If you want to know your stats such as your correct call streak or win/ lost record: type 'stats' when asked what you want to do.
+                        If you want to see the basic strategy chart: type 'chart' when asked what you want to do.
+
+                Rules:
+                        To win in the game of Blackjack, you want the sum of your cards to be as close to 21 as possible without going over (busting).
+                        If the sum of your first two cards is 21, that is a Blackjack! So long as the dealer does not also have a Blackjack, you will win some extra cash on top of your bet.
+
+                        You can choose to Stand, which means you end your turn and will not receive more cards.
+                        Hit, which means you receive an additional card and can choose to either hit again or stand
+                        Upon getting your first two cards you can do two alternative things to hitting or standing.
+
+                        After receiving your first two cards you can Double Down, which means you double your initial bet, but will only receive one additional card.
+                        Note that once you have hit, you can no longer Double Down.
+                        Or, if you are dealt a pair, you can Split them into two separate hands.
+                        For example, if you split two eights you would have two hands with an eight and a new second card. (can only split once per round)
+
+                Advantaged Play:
+                        'Basic Stategy' - is the most mathematically optimal way to play Blackjack.
+                        If you follow the chart perfectly, it reduces the casinos odds of winning to about 0.5%.
+                        In other words, follow this chart and you will only lose fifty cents for every one hundred dollars you bet!
+
+                        'Card Counting' - is a planned feature to be added... stay tuned.")
+end
+
+function SeeChart()
+        println("
+        Key: Ht = Hit, Db = Double Down, St = Stand, Sp = Split
+            _______________________________
+            | 2| 3| 4| 5| 6| 7| 8| 9| T| A| Dealer
+        You -------------------------------
+        8-  |Ht|Ht|Ht|Ht|Ht|Ht|Ht|Ht|Ht|Ht|
+        9   |Db|Db|Db|Db|Db|Ht|Ht|Ht|Ht|Ht|
+        10  |Db|Db|Db|Db|Db|Db|Db|Db|Ht|Ht|
+        11  |Db|Db|Db|Db|Db|Db|Db|Db|Db|Db|
+        12  |Ht|Ht|St|St|St|Ht|Ht|Ht|Ht|Ht|
+        13  |St|St|St|St|St|Ht|Ht|Ht|Ht|Ht|
+        14  |St|St|St|St|St|Ht|Ht|Ht|Ht|Ht|
+        15  |St|St|St|St|St|Ht|Ht|Ht|Ht|Ht|
+        16  |St|St|St|St|St|Ht|Ht|Ht|Ht|Ht|
+        17+ |St|St|St|St|St|St|St|St|St|St|
+        Ace -------------------------------
+        A,2 |Ht|Ht|Ht|Db|Db|Ht|Ht|Ht|Ht|Ht|
+        A,3 |Ht|Ht|Ht|Db|Db|Ht|Ht|Ht|Ht|Ht|
+        A,4 |Ht|Ht|Db|Db|Db|Ht|Ht|Ht|Ht|Ht|
+        A,5 |Ht|Ht|Db|Db|Db|Ht|Ht|Ht|Ht|Ht|
+        A,6 |Ht|Db|Db|Db|Db|Ht|Ht|Ht|Ht|Ht|
+        A,7 |St|Db|Db|Db|Db|St|St|Ht|Ht|Ht|
+        A,8 |St|St|St|St|St|St|St|St|St|St|
+        A,9 |St|St|St|St|St|St|St|St|St|St|
+        Pair-------------------------------
+        2,2 |Sp|Sp|Sp|Sp|Sp|Sp|Ht|Ht|Ht|Ht|
+        3,3 |Sp|Sp|Sp|Sp|Sp|Sp|Ht|Ht|Ht|Ht|
+        4,4 |Ht|Ht|Ht|Sp|Sp|Ht|Ht|Ht|Ht|Ht|
+        5,5 |Db|Db|Db|Db|Db|Db|Db|Db|Ht|Ht|
+        6,6 |Sp|Sp|Sp|Sp|Sp|Sp|Ht|Ht|Ht|Ht|
+        7,7 |Sp|Sp|Sp|Sp|Sp|Sp|Sp|Ht|Ht|Ht|
+        8,8 |Sp|Sp|Sp|Sp|Sp|Sp|Sp|Sp|Sp|Sp|
+        9,9 |Sp|Sp|Sp|Sp|Sp|St|Sp|Sp|St|St|
+        T,T |St|St|St|St|St|St|St|St|St|St|
+        A,A |Sp|Sp|Sp|Sp|Sp|Sp|Sp|Sp|Sp|Sp|
+        You -------------------------------
+            | 2| 3| 4| 5| 6| 7| 8| 9| T| A| Dealer
+
+        Key: Ht = Hit, Db = Double Down, St = Stand, Sp = Split
+        ")
 end
