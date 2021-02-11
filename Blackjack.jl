@@ -486,6 +486,17 @@ function What_do_you_do(First_Card, Second_Card, Tot_Next_Card, Dealer_Card, Car
                                 What_You_Do = readline()
                         end
 
+                elseif What_You_Do == "help"
+                        Rules()
+                        println("Now that you have seen the tutorial again... What do you do now?")
+                        What_You_Do = readline()
+                        UhOh += 1
+                        if What_You_Do == "chart" && UhOh > 1
+                                println("Are you dumb? The tutorial is literally right above this... Please play the game and stop being a moron. It takes up a lot of space...")
+                                UhOh += 1
+                                What_You_Do = readline()
+                        end
+
                 else
                         println("Sorry, that was not a valid input. Please try again!")
                         What_You_Do = readline()
@@ -756,6 +767,7 @@ This is a game intended for any skill level, and is an easy, fun, and informativ
                         Your input options are 'hit', 'stand', 'split','double' and they are case sensitive.
                         If you want to know your stats such as your correct call streak or win/ lost record: type 'stats' when asked what you want to do.
                         If you want to see the basic strategy chart: type 'chart' when asked what you want to do.
+                        If you want to see this tutorial list again: type 'help' when asked what you want to do.
 
                 Rules:
                         To win in the game of Blackjack, you want the sum of your cards to be as close to 21 as possible without going over (busting).
