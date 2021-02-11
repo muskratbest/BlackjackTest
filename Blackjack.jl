@@ -45,6 +45,7 @@ How many decks would you like to play with? (Number Value)")
         # New Game Original Deck
         streak = 0
         longest_streak = 0
+        correct_wrong_ratio = [0 0] #[RIGHT, WRONG]
         win_loss_ratio = [0 0 0] #[win, loss, tie]
         Deck, original_length = Shuffle(numofdecks)
 
@@ -111,7 +112,7 @@ How many decks would you like to play with? (Number Value)")
                                         end
                                 end
 
-                                What_You_Do, Your_Sum, streak, longest_streak = What_do_you_do(First_Card, Second_Card, Tot_Next_Card, Dealer_Card, CardFaces, streak, longest_streak, win_loss_ratio)
+                                What_You_Do, Your_Sum, streak, longest_streak, correct_wrong_ratio = What_do_you_do(First_Card, Second_Card, Tot_Next_Card, Dealer_Card, CardFaces, streak, longest_streak, win_loss_ratio, correct_wrong_ratio)
 
                                 if What_You_Do == "split"
                                         if SplitFlag == 0
@@ -441,8 +442,9 @@ function SomeoneHasAce(Card1, Card2, CardNew, TotCardNew, CardSum)
         return Card1, Card2, CardNew, TotCardNew, CardSum
 end
 
-function What_do_you_do(First_Card, Second_Card, Tot_Next_Card, Dealer_Card, CardFaces, streak, longest_streak, win_loss_ratio)
-
+function What_do_you_do(First_Card, Second_Card, Tot_Next_Card, Dealer_Card, CardFaces, streak, longest_streak, win_loss_ratio, correct_wrong_ratio)
+        RIGHT = correct_wrong_ratio[1]
+        WRONG = correct_wrong_ratio[2]
         Your_Sum = First_Card + Second_Card + Tot_Next_Card
         println("What Do You Do?")
 
@@ -451,9 +453,14 @@ function What_do_you_do(First_Card, Second_Card, Tot_Next_Card, Dealer_Card, Car
         UhOh = 0
         while What_You_Do != "hit" && What_You_Do != "stand" && What_You_Do != "double" && What_You_Do != "split"
                 if What_You_Do == "stats"
-                        percent = round(win_loss_ratio[1]/sum(win_loss_ratio)*100, digits = 2)
-                        println("Your current correct call streak is: ",streak," and your longest correct call streak is ", longest_streak)
-                        println("You have won ",win_loss_ratio[1]," games, lost ", win_loss_ratio[2], " and tied ", win_loss_ratio[3],". This makes your win/loss record ", percent,"%")
+                        percent1 = round(100*correct_wrong_ratio[1]/sum(correct_wrong_ratio), digits = 2)
+                        percent2 = round(100*win_loss_ratio[1]/(win_loss_ratio[1]+win_loss_ratio[2]), digits = 2)
+                        println("____________ You have played ", sum(win_loss_ratio)," games so far! ____________")
+                        println("~ Your Correct/ Incorrect Call Record is ~")
+                        println("Your current correct call streak is ",streak,", and your longest correct call streak is ", longest_streak)
+                        println("You have gotten ",correct_wrong_ratio[1]," calls right, and ", correct_wrong_ratio[2], " calls wrong. This makes your right/wrong record ", percent1,"%")
+                        println("~ Your Win/ Loss Record is ~")
+                        println("You have won ",win_loss_ratio[1]," games, lost ", win_loss_ratio[2], " and tied ", win_loss_ratio[3],". This makes your win/loss record ", percent2,"%")
                         println("Now that you know your  stats... What do you do now?")
                         What_You_Do = readline()
                         UhOh += 1
@@ -641,15 +648,18 @@ function What_do_you_do(First_Card, Second_Card, Tot_Next_Card, Dealer_Card, Car
         if correct == What_You_Do
                 println("CORRECT")
                 streak += 1
+                RIGHT += 1
+
                 if streak > longest_streak
                         longest_streak = streak
                 end
         else
                 println("WRONG... The correct answer is *", correct,"*")
+                WRONG += 1
                 streak = 0
         end
-
-        return What_You_Do, Your_Sum, streak, longest_streak
+        correct_wrong_ratio = [RIGHT WRONG]
+        return What_You_Do, Your_Sum, streak, longest_streak, correct_wrong_ratio
 end
 
 function NextCard(Your_Sum, Deck, numofdecks, Tot_Next_Card, SplitFlag)
