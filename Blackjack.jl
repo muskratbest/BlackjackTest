@@ -1,30 +1,17 @@
 function Blackjack()
         println("Welcome to Muskrat's Blackjack training game.")
         println("Have you ever played before? (y or n)")
+
         PlayedBefore = readline()
-        UhOh = 0
-        while PlayedBefore != "y" && PlayedBefore != "n"
-                println("Sorry, that was not a valid input. Please try again!")
-                PlayedBefore = readline()
-                UhOh += 1
-                if UhOh > 1 && PlayedBefore != "y" && PlayedBefore != "n"
-                        println("Sorry, that was not a valid input. Please try again! Remember, the valid inputs are 'y' meaning you have played before, or 'n' you have not played before.")
-                        PlayedBefore = readline()
-                end
-        end
+        PlayedBefore = YesOrNo(PlayedBefore)
+
         if PlayedBefore == "n"
                 Rules()
                 println("Would you like to see the Basic Strategy Chart before playing? (y or n)")
+
                 chart = readline()
-                while PlayedBefore != "y" && PlayedBefore != "n"
-                        println("Sorry, that was not a valid input. Please try again!")
-                        PlayedBefore = readline()
-                        UhOh += 1
-                        if UhOh > 1 && PlayedBefore != "y" && PlayedBefore != "n"
-                                println("Sorry, that was not a valid input. Please try again! Remember, the valid inputs are 'y' meaning you have played before, or 'n' you have not played before.")
-                                PlayedBefore = readline()
-                        end
-                end
+                chart = YesOrNo(chart)
+
                 if chart == "y"
                         println("___________________________________________________________")
                         println("Here it is! I recommend taking a picture it'll last longer.")
@@ -36,10 +23,8 @@ function Blackjack()
 
         end
         println("__________________________________________________________")
-        println("How many decks would you like to play with? (Number Value)")
-        numofdecks_string = readline()
-        numofdecks = parse(Int64, numofdecks_string)
-        #numofdecks = 1
+        println("How many decks would you like to play with? (Number Value 1-9)")
+        numofdecks = NumberOfDecks()
         Play_Again = "y"
 
         # New Game Original Deck
@@ -128,17 +113,9 @@ function Blackjack()
                                                         end
                                                 end
                                                 Second_Card1_Face = Second_Card1
-                                                for j = 1:numofdecks
-                                                        if Second_Card1_Index > 36+52*(j-1) && Second_Card1_Index < 41+52*(j-1)
-                                                                Second_Card1_Face = "Jack"
-                                                        elseif Second_Card1_Index > 40+52*(j-1) && Second_Card1_Index < 45+52*(j-1)
-                                                                Second_Card1_Face = "Queen"
-                                                        elseif Second_Card1_Index > 44+52*(j-1) && Second_Card1_Index < 49+52*(j-1)
-                                                                Second_Card1_Face = "King"
-                                                        elseif Second_Card1_Index > 48+52*(j-1) && Second_Card1_Index < 53+52*(j-1)
-                                                                Second_Card1_Face = "Ace"
-                                                        end
-                                                end
+
+                                                Second_Card1_Face = CardFace(numofdecks, Second_Card1_Index, Second_Card1_Face) # Determines the Face of the Card if Jack-Ace
+
                                                 Deck[Second_Card1_Index] = 0
                                                 Your_Sum1 = First_Card1 + Second_Card1
 
@@ -152,17 +129,9 @@ function Blackjack()
                                                         end
                                                 end
                                                 Second_Card2_Face = Second_Card2
-                                                for j = 1:numofdecks
-                                                        if Second_Card2_Index > 36+52*(j-1) && Second_Card2_Index < 41+52*(j-1)
-                                                                Second_Card2_Face = "Jack"
-                                                        elseif Second_Card2_Index > 40+52*(j-1) && Second_Card2_Index < 45+52*(j-1)
-                                                                Second_Card2_Face = "Queen"
-                                                        elseif Second_Card2_Index > 44+52*(j-1) && Second_Card2_Index < 49+52*(j-1)
-                                                                Second_Card2_Face = "King"
-                                                        elseif Second_Card2_Index > 48+52*(j-1) && Second_Card2_Index < 53+52*(j-1)
-                                                                Second_Card2_Face = "Ace"
-                                                        end
-                                                end
+
+                                                Second_Card2_Face = CardFace(numofdecks, Second_Card2_Index, Second_Card2_Face) # Determines the Face of the Card if Jack-Ace
+
                                                 Deck[Second_Card2_Index] = 0
                                                 Your_Sum2 = First_Card2 + Second_Card2
                                         else
@@ -278,20 +247,11 @@ function PlayAgain(Deck,numofdecks)
                         First_Card = Deck[First_Card_Index]
                 end
         end
-        CardFace1 = First_Card
-        for j = 1:numofdecks
-                if First_Card_Index > 36+52*(j-1) && First_Card_Index < 41+52*(j-1)
-                        CardFace1 = "Jack"
-                elseif First_Card_Index > 40+52*(j-1) && First_Card_Index < 45+52*(j-1)
-                        CardFace1 = "Queen"
-                elseif First_Card_Index > 44+52*(j-1) && First_Card_Index < 49+52*(j-1)
-                        CardFace1 = "King"
-                elseif First_Card_Index > 48+52*(j-1) && First_Card_Index < 53+52*(j-1)
-                        CardFace1 = "Ace"
-                end
-        end
-        Deck[First_Card_Index] = 0
 
+        CardFace1 = First_Card
+        CardFace1 = CardFace(numofdecks, First_Card_Index, CardFace1) # Determines the Face of the Card if Jack-Ace
+
+        Deck[First_Card_Index] = 0
 
         Dealer_Card_Index = rand(1:length(Deck))
         Dealer_Card = Deck[Dealer_Card_Index]
@@ -302,17 +262,9 @@ function PlayAgain(Deck,numofdecks)
                 end
         end
         CardFaceDealer1 = Dealer_Card
-        for j = 1:numofdecks
-                if Dealer_Card_Index > 36+52*(j-1) && Dealer_Card_Index < 41+52*(j-1)
-                        CardFaceDealer1 = "Jack"
-                elseif Dealer_Card_Index > 40+52*(j-1) && Dealer_Card_Index < 45+52*(j-1)
-                        CardFaceDealer1 = "Queen"
-                elseif Dealer_Card_Index > 44+52*(j-1) && Dealer_Card_Index < 49+52*(j-1)
-                        CardFaceDealer1 = "King"
-                elseif Dealer_Card_Index > 48+52*(j-1) && Dealer_Card_Index < 53+52*(j-1)
-                        CardFaceDealer1 = "Ace"
-                end
-        end
+
+        CardFaceDealer1 = CardFace(numofdecks, Dealer_Card_Index, CardFaceDealer1) # Determines the Face of the Card if Jack-Ace
+
         Deck[Dealer_Card_Index] = 0
 
         Second_Card_Index = rand(1:length(Deck))
@@ -324,17 +276,9 @@ function PlayAgain(Deck,numofdecks)
                 end
         end
         CardFace2 = Second_Card
-        for j = 1:numofdecks
-                if Second_Card_Index > 36+52*(j-1) && Second_Card_Index < 41+52*(j-1)
-                        CardFace2 = "Jack"
-                elseif Second_Card_Index > 40+52*(j-1) && Second_Card_Index < 45+52*(j-1)
-                        CardFace2 = "Queen"
-                elseif Second_Card_Index > 44+52*(j-1) && Second_Card_Index < 49+52*(j-1)
-                        CardFace2 = "King"
-                elseif Second_Card_Index > 48+52*(j-1) && Second_Card_Index < 53+52*(j-1)
-                        CardFace2 = "Ace"
-                end
-        end
+
+        CardFace2 = CardFace(numofdecks, Second_Card_Index, CardFace2) # Determines the Face of the Card if Jack-Ace
+
         Deck[Second_Card_Index] = 0
 
         Second_Dealer_Card_Index = rand(1:length(Deck))
@@ -346,17 +290,9 @@ function PlayAgain(Deck,numofdecks)
                 end
         end
         CardFaceDealer2 = Second_Dealer_Card
-        for j = 1:numofdecks
-                if Second_Dealer_Card_Index > 36+52*(j-1) && Second_Dealer_Card_Index < 41+52*(j-1)
-                        CardFaceDealer2 = "Jack"
-                elseif Second_Dealer_Card_Index > 40+52*(j-1) && Second_Dealer_Card_Index < 45+52*(j-1)
-                        CardFaceDealer2 = "Queen"
-                elseif Second_Dealer_Card_Index > 44+52*(j-1) && Second_Dealer_Card_Index < 49+52*(j-1)
-                        CardFaceDealer2 = "King"
-                elseif Second_Dealer_Card_Index > 48+52*(j-1) && Second_Dealer_Card_Index < 53+52*(j-1)
-                        CardFaceDealer2 = "Ace"
-                end
-        end
+
+        CardFaceDealer2 = CardFace(numofdecks, Second_Dealer_Card_Index, CardFaceDealer2) # Determines the Face of the Card if Jack-Ace
+
         Deck[Second_Dealer_Card_Index] = 0
 
         CardFaces = [CardFace1,CardFace2,CardFaceDealer1,CardFaceDealer2]
@@ -380,17 +316,9 @@ function Dealer(Dealer_Card, Second_Dealer_Card, Next_Dealer_Card, Tot_Next_Deal
                 Tot_Next_Dealer_Card += Next_Dealer_Card
                 Dealer_Sum += Next_Dealer_Card
                 CardFaceDealerNext = Next_Dealer_Card
-                for j = 1:numofdecks
-                        if Next_Dealer_Card_Index > 36+52*(j-1) && Next_Dealer_Card_Index < 41+52*(j-1)
-                                CardFaceDealerNext = "Jack"
-                        elseif Next_Dealer_Card_Index > 40+52*(j-1) && Next_Dealer_Card_Index < 45+52*(j-1)
-                                CardFaceDealerNext = "Queen"
-                        elseif Next_Dealer_Card_Index > 44+52*(j-1) && Next_Dealer_Card_Index < 49+52*(j-1)
-                                CardFaceDealerNext = "King"
-                        elseif Next_Dealer_Card_Index > 48+52*(j-1) && Next_Dealer_Card_Index < 53+52*(j-1)
-                                CardFaceDealerNext = "Ace"
-                        end
-                end
+
+                CardFaceDealerNext = CardFace(numofdecks, Next_Dealer_Card_Index, CardFaceDealerNext) # Determines the Face of the Card if Jack-Ace
+
                 Deck[Next_Dealer_Card_Index] = 0
                 println("The Dealer's Next Card is ", CardFaceDealerNext)
         end
@@ -683,17 +611,9 @@ function NextCard(Your_Sum, Deck, numofdecks, Tot_Next_Card, SplitFlag)
                 end
         end
         CardFaceNext = Next_Card
-        for j = 1:numofdecks
-                if Next_Card_Index > 36+52*(j-1) && Next_Card_Index < 41+52*(j-1)
-                        CardFaceNext = "Jack"
-                elseif Next_Card_Index > 40+52*(j-1) && Next_Card_Index < 45+52*(j-1)
-                        CardFaceNext = "Queen"
-                elseif Next_Card_Index > 44+52*(j-1) && Next_Card_Index < 49+52*(j-1)
-                        CardFaceNext = "King"
-                elseif Next_Card_Index > 48+52*(j-1) && Next_Card_Index < 53+52*(j-1)
-                        CardFaceNext = "Ace"
-                end
-        end
+
+        CardFaceNext = CardFace(numofdecks, Next_Card_Index, CardFaceNext) # Determines the Face of the Card if Jack-Ace
+
         Deck[Next_Card_Index] = 0
         Your_Sum += Next_Card
         Tot_Next_Card += Next_Card
@@ -736,18 +656,9 @@ end
 
 function Want2PlayAgain(Deck)
         println("Want to Play Again? (y or n)")
-        Play_Again = readline()
 
-        UhOh = 0
-        while Play_Again != "y" && Play_Again != "n"
-                println("Sorry, that was not a valid input. Please try again!")
-                Play_Again = readline()
-                UhOh += 1
-                if UhOh > 1 && Play_Again != "y" && Play_Again != "n"
-                        println("Sorry, that was not a valid input. Please try again! Remember, the valid inputs are 'y' to continue playing, or 'n' to stop playing.")
-                        Play_Again = readline()
-                end
-        end
+        Play_Again = readline()
+        Play_Again = YesOrNo(Play_Again)
 
         if Play_Again == "y"
                 println("_____________________________________________________________")
@@ -758,9 +669,102 @@ function Want2PlayAgain(Deck)
         return Play_Again, Deck
 end
 
+function NumberOfDecks()
+    flag = 1
+    numofdecks = 0
+    numofdecks_string = readline()
+    while typeof(numofdecks_string) != String
+        if typeof(numofdecks_string) != String
+            println("Sorry that is not a valid input. Please try again!")
+        end
+        numofdecks_string = readline()
+    end
+    ASCII_First = Int(numofdecks_string[1])
+    ASCII_Last = Int(numofdecks_string[length(numofdecks_string)])
+
+    while flag > 0
+        if ASCII_First == 49 && ASCII_First == ASCII_Last || ASCII_First == 50 && ASCII_First == ASCII_Last || ASCII_First == 51 && ASCII_First == ASCII_Last || ASCII_First == 52 && ASCII_First == ASCII_Last || ASCII_First == 53 && ASCII_First == ASCII_Last || ASCII_First == 54 && ASCII_First == ASCII_Last || ASCII_First == 55 && ASCII_First == ASCII_Last || ASCII_First == 56 && ASCII_First == ASCII_Last || ASCII_First == 57 && ASCII_First == ASCII_Last
+            numofdecks = parse(Int64, numofdecks_string)
+            flag = 0
+            if numofdecks > 9
+                println("Sorry that is not a valid input. Please try again!")
+                numofdecks_string = readline()
+                while typeof(numofdecks_string) != String
+                    if typeof(numofdecks_string) != String
+                        println("Sorry that is not a valid input. Please try again!")
+                    end
+                    numofdecks_string = readline()
+                end
+                ASCII_First = Int(numofdecks_string[1])
+                ASCII_Last = Int(numofdecks_string[length(numofdecks_string)])
+                flag += 1
+            end
+
+        else
+            println("Sorry that is not a valid input. Please try again!")
+            numofdecks_string = readline()
+            while typeof(numofdecks_string) != String
+                if typeof(numofdecks_string) != String
+                    println("Sorry that is not a valid input. Please try again!")
+                end
+                numofdecks_string = readline()
+            end
+            ASCII_First = Int(numofdecks_string[1])
+            ASCII_Last = Int(numofdecks_string[length(numofdecks_string)])
+            flag += 1
+        end
+
+        if flag > 2
+            println("Sorry that is not a valid input. Please choose a value from 1 to 9!")
+            numofdecks_string = readline()
+            while typeof(numofdecks_string) != String
+                if typeof(numofdecks_string) != String
+                    println("Sorry that is not a valid input. Please try again!")
+                end
+                numofdecks_string = readline()
+            end
+            ASCII_First = Int(numofdecks_string[1])
+            ASCII_Last = Int(numofdecks_string[length(numofdecks_string)])
+            flag = 1
+        end
+    end
+    println("____________________________________________")
+    return numofdecks
+end
+
+function CardFace(numofdecks, Index, CardFace)
+        for j = 1:numofdecks
+                if Index > 36+52*(j-1) && Index < 41+52*(j-1)
+                        CardFace = "Jack"
+                elseif Index > 40+52*(j-1) && Index < 45+52*(j-1)
+                        CardFace = "Queen"
+                elseif Index > 44+52*(j-1) && Index < 49+52*(j-1)
+                        CardFace = "King"
+                elseif Index > 48+52*(j-1) && Index < 53+52*(j-1)
+                        CardFace = "Ace"
+                end
+        end
+        CardFace1 = CardFace
+        return CardFace1
+end
+
+function YesOrNo(yesno)
+        UhOh = 0
+        while yesno != "y" && yesno != "n"
+                println("Sorry, that was not a valid input. Please try again!")
+                yesno = readline()
+                UhOh += 1
+                if UhOh > 1 && yesno != "y" && yesno != "n"
+                        println("Sorry, that was not a valid input. Please try again! Remember, the valid inputs are 'y' meaning you have played before, or 'n' you have not played before.")
+                        yesno = readline()
+                end
+        end
+        return yesno
+end
+
 function Rules()
-        println("_____________________________________________________________________________________________________________________________________________________________
-This is a game intended for any skill level, and is an easy, fun, and informative way to learn the game of Blackjack, and various advantaged play strategies.
+        println("_____________________________________________________________________________________________________________________________________________________________")
+        println("This is a game intended for any skill level, and is an easy, fun, and informative way to learn the game of Blackjack, and various advantaged play strategies.
 
         The rules for this game are simple, correctly identify the best option when given a certain set of cards.
                 Commands:
