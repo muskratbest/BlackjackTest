@@ -1,5 +1,5 @@
 function Blackjack()
-        println("Welcome to Muskrat's Blackjack training game.")
+        println("Welcome to Muskrat's Blackjack Training Game!")
         println("Have you ever played before? (y or n)")
 
         PlayedBefore = readline()
@@ -22,6 +22,7 @@ function Blackjack()
                 end
 
         end
+
         println("__________________________________________________________")
         println("How many decks would you like to play with? (Number Value 1-9)")
         numofdecks = NumberOfDecks()
@@ -391,39 +392,47 @@ function What_do_you_do(First_Card, Second_Card, Tot_Next_Card, Dealer_Card, Car
                         println("You have gotten ",correct_wrong_ratio[1]," calls right, and ", correct_wrong_ratio[2], " calls wrong. This makes your right/wrong record ", percent1,"%")
                         println("~ Your Win/ Loss Record is ~")
                         println("You have won ",win_loss_ratio[1]," games, lost ", win_loss_ratio[2], " and tied ", win_loss_ratio[3],". This makes your win/loss record ", percent2,"%")
+                        println("____________________________________________________")
                         println("Now that you know your  stats... What do you do now?")
+                        println("Please recall that your Cards are ", CardFaces[1], " and ", CardFaces[2], " Dealer's Card is ",CardFaces[3])
                         What_You_Do = readline()
                         UhOh += 1
                         if What_You_Do == "stats" && UhOh > 1
                                 println("Are you dumb? I just showed you your stats... Literally nothing has changed... Please play the game and stop being a moron.")
                                 UhOh += 1
+                                println("Please recall that your Cards are ", CardFaces[1], " and ", CardFaces[2], " Dealer's Card is ",CardFaces[3])
                                 What_You_Do = readline()
                         end
                         if What_You_Do == "stats" && UhOh > 5
                                 println("Alright since you are an idiot maybe you will be entertained by this...")
                                 println("You found my Easter Egg... Cool I guess? You should probably focus more on your Blackjack though... You have lost ", win_loss_ratio[2], " times...")
+                                println("Please recall that your Cards are ", CardFaces[1], " and ", CardFaces[2], " Dealer's Card is ",CardFaces[3])
                                 What_You_Do = readline()
                         end
 
                 elseif What_You_Do == "chart"
                         SeeChart()
                         println("Now that you have seen the Basic Strategy Chart... What do you do now?")
+                        println("Please recall that your Cards are ", CardFaces[1], " and ", CardFaces[2], " Dealer's Card is ",CardFaces[3])
                         What_You_Do = readline()
                         UhOh += 1
                         if What_You_Do == "chart" && UhOh > 1
                                 println("Are you dumb? The chart is literally right above this... Please play the game and stop being a moron. It takes up a lot of space...")
                                 UhOh += 1
+                                println("Please recall that your Cards are ", CardFaces[1], " and ", CardFaces[2], " Dealer's Card is ",CardFaces[3])
                                 What_You_Do = readline()
                         end
 
                 elseif What_You_Do == "help"
                         Rules()
                         println("Now that you have seen the tutorial again... What do you do now?")
+                        println("Please recall that your Cards are ", CardFaces[1], " and ", CardFaces[2], " Dealer's Card is ",CardFaces[3])
                         What_You_Do = readline()
                         UhOh += 1
                         if What_You_Do == "help" && UhOh > 1
                                 println("Are you dumb? The tutorial is literally right above this... Please play the game and stop being a moron. It takes up a lot of space...")
                                 UhOh += 1
+                                println("Please recall that your Cards are ", CardFaces[1], " and ", CardFaces[2], " Dealer's Card is ",CardFaces[3])
                                 What_You_Do = readline()
                         end
 
@@ -433,6 +442,7 @@ function What_do_you_do(First_Card, Second_Card, Tot_Next_Card, Dealer_Card, Car
                         UhOh += 1
                         if UhOh > 1 && What_You_Do != "hit" && What_You_Do != "stand" && What_You_Do != "double" && What_You_Do != "split"
                                 println("Sorry, that was not a valid input. Please try again! Remember, the valid inputs are 'hit', 'stand', 'double', or 'split' and they are case sensitive.")
+                                println("Please recall that your Cards are ", CardFaces[1], " and ", CardFaces[2], " Dealer's Card is ",CardFaces[3])
                                 What_You_Do = readline()
                         end
                 end
