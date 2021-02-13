@@ -40,6 +40,7 @@ function Blackjack()
                 BlackjackFlag = 0
                 SplitFlag = 0
                 IdiotAlert = 0
+                biteme = 0
                 Next_Card = 0
                 Next_Dealer_Card = 0
                 Tot_Next_Card = 0
@@ -68,7 +69,7 @@ function Blackjack()
 
                 #Check for an Idiot
                 if Your_Sum == 22
-                        IdiotAlert == 1
+                        IdiotAlert = 1 #You Have Two Aces
                 end
 
 
@@ -143,10 +144,11 @@ function Blackjack()
                                         end
                                 end
 
-                                if What_You_Do == "hit" && Your_Sum < 21 || What_You_Do == "double" && Your_Sum < 21 || IdiotAlert == 1
-                                        Deck, Next_Card, Tot_Next_Card, Your_Sum = NextCard(Your_Sum, Deck, numofdecks, Tot_Next_Card, SplitFlag)
-                                        First_Card, Second_Card, Next_Card, Tot_Next_Card, Your_Sum = SomeoneHasAce(First_Card, Second_Card, Next_Card, Tot_Next_Card, Your_Sum)
-                                        First_Card, Second_Card, Next_Card, Tot_Next_Card, Your_Sum = SomeoneHasAce(First_Card, Second_Card, Next_Card, Tot_Next_Card, Your_Sum)
+                                if What_You_Do == "hit" && Your_Sum < 21 || What_You_Do == "double" && Your_Sum < 21 || IdiotAlert == 1 && Tot_Next_Card == 0 && What_You_Do != "split"
+                                        if What_You_Do != "stand"
+                                                Deck, Next_Card, Tot_Next_Card, Your_Sum = NextCard(Your_Sum, Deck, numofdecks, Tot_Next_Card, SplitFlag)
+                                        end
+                                        First_Card, Second_Card, Next_Card, Tot_Next_Card, Your_Sum, biteme = SomeoneHasAce(First_Card, Second_Card, Next_Card, Tot_Next_Card, Your_Sum, biteme)
                                 end
 
                                 if Your_Sum > 20 || What_You_Do == "stand" || What_You_Do == "double"
@@ -177,8 +179,7 @@ function Blackjack()
 
                 while abort != "YES"
                         Dealer_Sum, Deck, Next_Dealer_Card = Dealer(Dealer_Card, Second_Dealer_Card, Next_Dealer_Card, Tot_Next_Dealer_Card, Deck, numofdecks, Your_Sum)
-                        Dealer_Card, Second_Dealer_Card, Next_Dealer_Card, Tot_Next_Dealer_Card, Dealer_Sum = SomeoneHasAce(Dealer_Card, Second_Dealer_Card, Next_Dealer_Card, Tot_Next_Dealer_Card, Dealer_Sum)
-                        Dealer_Card, Second_Dealer_Card, Next_Dealer_Card, Tot_Next_Dealer_Card, Dealer_Sum = SomeoneHasAce(Dealer_Card, Second_Dealer_Card, Next_Dealer_Card, Tot_Next_Dealer_Card, Dealer_Sum)
+                        Dealer_Card, Second_Dealer_Card, Next_Dealer_Card, Tot_Next_Dealer_Card, Dealer_Sum, biteme = SomeoneHasAce(Dealer_Card, Second_Dealer_Card, Next_Dealer_Card, Tot_Next_Dealer_Card, Dealer_Sum, biteme)
                         if Dealer_Sum > 17 || Dealer_Sum == 17
                                 abort = "YES"
                         end
@@ -328,7 +329,7 @@ function Dealer(Dealer_Card, Second_Dealer_Card, Next_Dealer_Card, Tot_Next_Deal
         return Dealer_Sum, Deck, Next_Dealer_Card
 end
 
-function SomeoneHasAce(Card1, Card2, CardNew, TotCardNew, CardSum)
+function SomeoneHasAce(Card1, Card2, CardNew, TotCardNew, CardSum, biteme)
         abort = "NO"
         AceFlag = 0
         while abort != "YES"
@@ -360,9 +361,17 @@ function SomeoneHasAce(Card1, Card2, CardNew, TotCardNew, CardSum)
                                         CardNew = 1
                                         TotCardNew -= 10
                                         CardSum = Card1 + Card2 + TotCardNew
-                                        #AceFlag -= 1
+                                else
+                                        biteme += 1
+                                end
+                        elseif biteme == 1
+                                if CardSum > 21
+                                        TotCardNew -= 10
+                                        CardSum = Card1 + Card2 + TotCardNew
+                                        biteme -= 1
                                 end
                         end
+
 
                         if CardSum < 22
                                 abort = "YES"
@@ -370,7 +379,7 @@ function SomeoneHasAce(Card1, Card2, CardNew, TotCardNew, CardSum)
                         end
                 end
         end
-        return Card1, Card2, CardNew, TotCardNew, CardSum
+        return Card1, Card2, CardNew, TotCardNew, CardSum, biteme
 end
 
 function What_do_you_do(First_Card, Second_Card, Tot_Next_Card, Dealer_Card, CardFaces, streak, longest_streak, win_loss_ratio, correct_wrong_ratio)
