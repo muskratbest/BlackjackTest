@@ -13,17 +13,17 @@ function Blackjack()
                 chart = YesOrNo(chart)
 
                 if chart == "y"
-                        println("___________________________________________________________")
+                        println("_______________________________________________________________________________________________________________________________")
                         println("Here it is! I recommend taking a picture it'll last longer.")
                         SeeChart()
                 elseif chart == "n"
-                        println("_________________________________________")
+                        println("_______________________________________________________________________________________________________________________________")
                         println("Okay sounds good. Good luck and have fun!")
                 end
 
         end
 
-        println("__________________________________________________________")
+        println("_______________________________________________________________________________________________________________________________")
         println("How many decks would you like to play with? (Number Value 1-9)")
         numofdecks = NumberOfDecks()
         Play_Again = "y"
@@ -401,20 +401,22 @@ function What_do_you_do(First_Card, Second_Card, Tot_Next_Card, Dealer_Card, Car
                         println("You have gotten ",correct_wrong_ratio[1]," calls right, and ", correct_wrong_ratio[2], " calls wrong. This makes your right/wrong record ", percent1,"%")
                         println("~ Your Win/ Loss Record is ~")
                         println("You have won ",win_loss_ratio[1]," games, lost ", win_loss_ratio[2], " and tied ", win_loss_ratio[3],". This makes your win/loss record ", percent2,"%")
-                        println("____________________________________________________")
+                        println("_______________________________________________________________________________________________________________________________")
                         println("Now that you know your  stats... What do you do now?")
                         println("Please recall that your Cards are ", CardFaces[1], " and ", CardFaces[2], " Dealer's Card is ",CardFaces[3])
                         What_You_Do = readline()
                         UhOh += 1
                         if What_You_Do == "stats" && UhOh > 1
+                                println("_______________________________________________________________________________________________________________________________")
                                 println("Are you dumb? I just showed you your stats... Literally nothing has changed... Please play the game and stop being a moron.")
                                 UhOh += 1
                                 println("Please recall that your Cards are ", CardFaces[1], " and ", CardFaces[2], " Dealer's Card is ",CardFaces[3])
                                 What_You_Do = readline()
                         end
                         if What_You_Do == "stats" && UhOh > 5
+                                println("_______________________________________________________________________________________________________________________________")
                                 println("Alright since you are an idiot maybe you will be entertained by this...")
-                                println("You found my Easter Egg... Cool I guess? You should probably focus more on your Blackjack though... You have lost ", win_loss_ratio[2], " times...")
+                                println("You found my Easter Egg... Cool I guess? You should focus more on your Blackjack though... You have lost ", win_loss_ratio[2], " times...")
                                 println("Please recall that your Cards are ", CardFaces[1], " and ", CardFaces[2], " Dealer's Card is ",CardFaces[3])
                                 What_You_Do = readline()
                         end
@@ -426,7 +428,8 @@ function What_do_you_do(First_Card, Second_Card, Tot_Next_Card, Dealer_Card, Car
                         What_You_Do = readline()
                         UhOh += 1
                         if What_You_Do == "chart" && UhOh > 1
-                                println("Are you dumb? The chart is literally right above this... Please play the game and stop being a moron. It takes up a lot of space...")
+                                println("_______________________________________________________________________________________________________________________________")
+                                println("Are you dumb? The chart is literally right above this... Please play the game and stop being a moron...")
                                 UhOh += 1
                                 println("Please recall that your Cards are ", CardFaces[1], " and ", CardFaces[2], " Dealer's Card is ",CardFaces[3])
                                 What_You_Do = readline()
@@ -439,7 +442,8 @@ function What_do_you_do(First_Card, Second_Card, Tot_Next_Card, Dealer_Card, Car
                         What_You_Do = readline()
                         UhOh += 1
                         if What_You_Do == "help" && UhOh > 1
-                                println("Are you dumb? The tutorial is literally right above this... Please play the game and stop being a moron. It takes up a lot of space...")
+                                println("_______________________________________________________________________________________________________________________________")
+                                println("Are you dumb? The tutorial is literally right above this... Please play the game and stop being a moron...")
                                 UhOh += 1
                                 println("Please recall that your Cards are ", CardFaces[1], " and ", CardFaces[2], " Dealer's Card is ",CardFaces[3])
                                 What_You_Do = readline()
@@ -450,7 +454,7 @@ function What_do_you_do(First_Card, Second_Card, Tot_Next_Card, Dealer_Card, Car
                         What_You_Do = readline()
                         UhOh += 1
                         if UhOh > 1 && What_You_Do != "hit" && What_You_Do != "stand" && What_You_Do != "double" && What_You_Do != "split"
-                                println("Sorry, that was not a valid input. Please try again! Remember, the valid inputs are 'hit', 'stand', 'double', or 'split' and they are case sensitive.")
+                                println("Sorry, that was not a valid input. Please try again! Recall: Valid inputs are 'hit', 'stand', 'double', or 'split'.")
                                 println("Please recall that your Cards are ", CardFaces[1], " and ", CardFaces[2], " Dealer's Card is ",CardFaces[3])
                                 What_You_Do = readline()
                         end
@@ -682,9 +686,9 @@ function Want2PlayAgain(Deck)
         Play_Again = YesOrNo(Play_Again)
 
         if Play_Again == "y"
-                println("_____________________________________________________________")
+                println("_______________________________________________________________________________________________________________________________")
         else
-                println("_____________________________________________________________")
+                println("_______________________________________________________________________________________________________________________________")
                 println("Thanks for Playing!")
         end
         return Play_Again, Deck
@@ -749,7 +753,7 @@ function NumberOfDecks()
             flag = 1
         end
     end
-    println("____________________________________________")
+    println("_______________________________________________________________________________________________________________________________")
     return numofdecks
 end
 
@@ -776,7 +780,7 @@ function YesOrNo(yesno)
                 yesno = readline()
                 UhOh += 1
                 if UhOh > 1 && yesno != "y" && yesno != "n"
-                        println("Sorry, that was not a valid input. Please try again! Remember, the valid inputs are 'y' meaning you have played before, or 'n' you have not played before.")
+                        println("Sorry, that was not a valid input. Remember, the valid inputs are 'y' meaning you have played, or 'n' you have not played.")
                         yesno = readline()
                 end
         end
@@ -784,35 +788,40 @@ function YesOrNo(yesno)
 end
 
 function Rules()
-        println("_____________________________________________________________________________________________________________________________________________________________")
-        println("This is a game intended for any skill level, and is an easy, fun, and informative way to learn the game of Blackjack, and various advantaged play strategies.
+        println("_______________________________________________________________________________________________________________________________")
+        println("This is a game intended for any skill level, and is an easy, fun, and informative way to learn the game of Blackjack, and
+                 various advantaged play strategies.
 
-        The rules for this game are simple, correctly identify the best option when given a certain set of cards.
-                Commands:
-                        Your input options are 'hit', 'stand', 'split','double' and they are case sensitive.
-                        If you want to know your stats such as your correct call streak or win/ lost record: type 'stats' when asked what you want to do.
-                        If you want to see the basic strategy chart: type 'chart' when asked what you want to do.
-                        If you want to see this tutorial list again: type 'help' when asked what you want to do.
+The rules for this game are simple, correctly identify the best option when given a certain set of cards.
 
-                Rules:
-                        To win in the game of Blackjack, you want the sum of your cards to be as close to 21 as possible without going over (busting).
-                        If the sum of your first two cards is 21, that is a Blackjack! So long as the dealer does not also have a Blackjack, you will win some extra cash on top of your bet.
+Commands:
+        Your input options are 'hit', 'stand', 'split','double' and they are case sensitive.
+        If you want to know your stats such as your correct call streak or win/ lost record: type 'stats'.
+        If you want to see the basic strategy chart: type 'chart'.
+        If you want to see this tutorial list again: type 'help'.
 
-                        You can choose to Stand, which means you end your turn and will not receive more cards.
-                        Hit, which means you receive an additional card and can choose to either hit again or stand
-                        Upon getting your first two cards you can do two alternative things to hitting or standing.
+Rules:
+        To win in the game of Blackjack, you want the sum of your cards to be as close to 21 as possible without going over.
+        If the sum of your first two cards is 21, that is a Blackjack!
+        So long as the dealer does not also have a Blackjack, you will win some extra cash on top of your bet.
 
-                        After receiving your first two cards you can Double Down, which means you double your initial bet, but will only receive one additional card.
-                        Note that once you have hit, you can no longer Double Down.
-                        Or, if you are dealt a pair, you can Split them into two separate hands.
-                        For example, if you split two eights you would have two hands with an eight and a new second card. (can only split once per round)
+        You can choose to Stand, which means you end your turn and will not receive more cards.
+        Hit, which means you receive an additional card and can choose to either hit again or stand
+        Upon getting your first two cards you can do two alternative things to hitting or standing.
 
-                Advantaged Play:
-                        'Basic Stategy' - is the most mathematically optimal way to play Blackjack.
-                        If you follow the chart perfectly, it reduces the casinos odds of winning to about 0.5%.
-                        In other words, follow this chart and you will only lose fifty cents for every one hundred dollars you bet!
 
-                        'Card Counting' - is a planned feature to be added... stay tuned.")
+        You can Double Down, which means you double your bet, but will only receive one more card.
+                (Note: Once you have hit, you can no longer Double Down.)
+        Or, if you are dealt a pair, you can Split them into two separate (new) hands.
+                (Note: You can only split once per round.)
+
+
+Advantaged Play:
+        'Basic Stategy' - is the most mathematically optimal way to play Blackjack.
+        If you follow the chart perfectly, it reduces the casinos odds of winning to about 0.5%.
+        In other words, follow this chart and you will only lose fifty cents for every one hundred dollars you bet!
+
+        'Card Counting' - is a planned feature to be added... stay tuned.")
 end
 
 function SeeChart()
