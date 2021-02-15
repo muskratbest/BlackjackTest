@@ -703,7 +703,6 @@ function NumberOfDecks()
     flag = 1
     numofdecks = 0
     numofdecks_string = readline()
-    println(numofdecks_string)
     while numofdecks_string == ""
         if numofdecks_string == ""
                 println("Sorry that is not a valid input. Please choose a value from 1 to 9!")
