@@ -223,7 +223,7 @@ function Blackjack()
                 end
 
                 if ShuffleFlag > 0.5 * original_length
-                        println("Shuffle Time")
+                        println("~ You notice that the deck has just been shuffled ~")
                         Deck, original_length = Shuffle(numofdecks)
                 end
         end
@@ -817,7 +817,7 @@ Rules:
         You can Double Down, which means you double your bet, but will only receive one more card.
                 (Note: Once you have hit, you can no longer Double Down.)
         Or, if you are dealt a pair, you can Split them into two separate (new) hands.
-                (Note: You can only split once per round.)
+                (Note: You can only split once per round and can't get Blackjack on a split.)
 
 
 Advantaged Play:
