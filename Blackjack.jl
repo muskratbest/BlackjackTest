@@ -1,6 +1,6 @@
 function Blackjack()
         println("Welcome to Muskrat's Blackjack Training Game!")
-        println("Have you ever played before? (y or n)")
+        println("Would you like a refresher on the valid inputs and rules? (y or n)")
 
         PlayedBefore = readline()
         PlayedBefore = YesOrNo(PlayedBefore)
