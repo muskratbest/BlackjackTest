@@ -7,23 +7,24 @@ function Blackjack()
 
         if PlayedBefore == "n"
                 Rules()
+                println("_____________________________________________________________________________________________________________________________")
                 println("Would you like to see the Basic Strategy Chart before playing? (y or n)")
 
                 chart = readline()
                 chart = YesOrNo(chart)
 
                 if chart == "y"
-                        println("_______________________________________________________________________________________________________________________________")
+                        println("_____________________________________________________________________________________________________________________________")
                         println("Here it is! I recommend taking a picture it'll last longer.")
                         SeeChart()
                 elseif chart == "n"
-                        println("_______________________________________________________________________________________________________________________________")
+                        println("_____________________________________________________________________________________________________________________________")
                         println("Okay sounds good. Good luck and have fun!")
                 end
 
         end
 
-        println("_______________________________________________________________________________________________________________________________")
+        println("_____________________________________________________________________________________________________________________________")
         println("How many decks would you like to play with? (Number Value 1-9)")
         numofdecks = NumberOfDecks()
         Play_Again = "y"
@@ -76,30 +77,33 @@ function Blackjack()
                 #Ask: What do you do when you don't have Blackjack
                         while abort != "YES" || SplitFlag > 0
                                 if SplitFlag == 2
+                                        IdiotAlert = 0
                                         First_Card = First_Card1
                                         Second_Card = Second_Card1
-                                        Your_Sum1 += Next_Card
+
+                                        Your_Sum = First_Card + Second_Card + Tot_Next_Card
+                                        First_Card, Second_Card, Next_Card, Tot_Next_Card, Your_Sum, biteme = SomeoneHasAce(First_Card, Second_Card, Next_Card, Tot_Next_Card, Your_Sum, biteme)
+
                                         if Tot_Next_Card == 0
                                                 println("Your FIRST hand has a ", CardFaces[1], " and a ", Second_Card1_Face, ". the Dealer still has a ", CardFaces[3])
-
                                         end
 
                                 elseif SplitFlag == 1
-                                        if Your_Sum > 21 && Tot_Next_Card == 0 || What_You_Do == "stand" && Tot_Next_Card == 0 || What_You_Do == "double" && Tot_Next_Card == 0
-                                                Your_Sum1 += Next_Card
-                                        end
-
-
                                         First_Card = First_Card2
                                         Second_Card = Second_Card2
-                                        if Tot_Next_Card == 0
-                                                println("Done with FIRST hand.")
-                                                println("Your SECOND hand has a ", CardFaces[2], " and a ", Second_Card2_Face, ". the Dealer still has a ", CardFaces[3])
 
+                                        Your_Sum = First_Card + Second_Card + Tot_Next_Card
+                                        First_Card, Second_Card, Next_Card, Tot_Next_Card, Your_Sum, biteme = SomeoneHasAce(First_Card, Second_Card, Next_Card, Tot_Next_Card, Your_Sum, biteme)
+
+                                        if Tot_Next_Card == 0
+                                                println("~ Done with FIRST hand ~")
+                                                biteme = 0
+                                                println("Your SECOND hand has a ", CardFaces[2], " and a ", Second_Card2_Face, ". the Dealer still has a ", CardFaces[3])
                                         end
                                 end
-
-                                What_You_Do, Your_Sum, streak, longest_streak, correct_wrong_ratio = What_do_you_do(First_Card, Second_Card, Tot_Next_Card, Dealer_Card, CardFaces, streak, longest_streak, win_loss_ratio, correct_wrong_ratio)
+                                if Your_Sum != 21 || IdiotAlert == 1
+                                        What_You_Do, Your_Sum, streak, longest_streak, correct_wrong_ratio = What_do_you_do(First_Card, Second_Card, Tot_Next_Card, Dealer_Card, CardFaces, SplitFlag, streak, longest_streak, win_loss_ratio, correct_wrong_ratio)
+                                end
 
                                 if What_You_Do == "split"
                                         if SplitFlag == 0
@@ -115,11 +119,8 @@ function Blackjack()
                                                         end
                                                 end
                                                 Second_Card1_Face = Second_Card1
-
                                                 Second_Card1_Face = CardFace(numofdecks, Second_Card1_Index, Second_Card1_Face) # Determines the Face of the Card if Jack-Ace
-
                                                 Deck[Second_Card1_Index] = 0
-                                                Your_Sum1 = First_Card1 + Second_Card1
 
                                                 First_Card2 = Second_Card
                                                 Second_Card2_Index = rand(1:length(Deck))
@@ -135,7 +136,6 @@ function Blackjack()
                                                 Second_Card2_Face = CardFace(numofdecks, Second_Card2_Index, Second_Card2_Face) # Determines the Face of the Card if Jack-Ace
 
                                                 Deck[Second_Card2_Index] = 0
-                                                Your_Sum2 = First_Card2 + Second_Card2
                                         else
                                                 while What_You_Do == "split"
                                                         println("Sorry, you can only split once per round. Please try again!")
@@ -149,20 +149,25 @@ function Blackjack()
                                                 Deck, Next_Card, Tot_Next_Card, Your_Sum = NextCard(Your_Sum, Deck, numofdecks, Tot_Next_Card, SplitFlag)
                                         end
                                         First_Card, Second_Card, Next_Card, Tot_Next_Card, Your_Sum, biteme = SomeoneHasAce(First_Card, Second_Card, Next_Card, Tot_Next_Card, Your_Sum, biteme)
+                                        IdiotAlert = 0
                                 end
-
-                                if Your_Sum > 20 || What_You_Do == "stand" || What_You_Do == "double"
+                                if Your_Sum > 20 && IdiotAlert == 0 || What_You_Do == "stand" && IdiotAlert == 0 || What_You_Do == "double" && IdiotAlert == 0
                                         abort = "YES"
-                                        SplitFlag -= 1
-                                        Tot_Next_Card = 0
+                                        if SplitFlag == 2
+                                                Your_Sum1 = First_Card + Second_Card + Tot_Next_Card
+                                                Tot_Next_Card = 0
+                                                SplitFlag -= 1
+                                        elseif SplitFlag == 1
+                                                Your_Sum2 = First_Card + Second_Card + Tot_Next_Card
+                                                SplitFlag -= 1
+                                        end
                                 end
                         end
                 end
 
-                if Your_Sum1 > Your_Sum && Your_Sum1 != 0
-                        Your_Sum2 = Your_Sum
-                elseif Your_Sum > Your_Sum1 && Your_Sum1 != 0
-                        Your_Sum2 = Your_Sum
+                if Your_Sum1 > Your_Sum2 && Your_Sum1 != 0
+                        Your_Sum = Your_Sum2
+                elseif Your_Sum2 > Your_Sum1 && Your_Sum1 != 0
                         Your_Sum = Your_Sum1
                 end
 
@@ -170,15 +175,17 @@ function Blackjack()
 
                 if First_Card + Second_Card == 21 || Your_Sum > 21
                         abort = "YES"
+                        println("~ Dealer's Turn ~")
                         println("The Dealer's Second Card is ", CardFaces[4])
                         Dealer_Sum = Dealer_Card + Second_Dealer_Card + Next_Dealer_Card
                 else
                         abort = "NO"
+                        println("~ Dealer's Turn ~")
                         println("The Dealer's Second Card is ", CardFaces[4])
                 end
 
                 while abort != "YES"
-                        Dealer_Sum, Deck, Next_Dealer_Card = Dealer(Dealer_Card, Second_Dealer_Card, Next_Dealer_Card, Tot_Next_Dealer_Card, Deck, numofdecks, Your_Sum)
+                        Dealer_Sum, Deck, Next_Dealer_Card, Tot_Next_Dealer_Card = Dealer(Dealer_Card, Second_Dealer_Card, Next_Dealer_Card, Tot_Next_Dealer_Card, Deck, numofdecks, Your_Sum)
                         Dealer_Card, Second_Dealer_Card, Next_Dealer_Card, Tot_Next_Dealer_Card, Dealer_Sum, biteme = SomeoneHasAce(Dealer_Card, Second_Dealer_Card, Next_Dealer_Card, Tot_Next_Dealer_Card, Dealer_Sum, biteme)
                         if Dealer_Sum > 17 || Dealer_Sum == 17
                                 abort = "YES"
@@ -186,7 +193,7 @@ function Blackjack()
                 end
 
                 #Wrap Up
-                if Your_Sum1 != 0 || Your_Sum2 != 0
+                if Your_Sum1 != 0 && Your_Sum2 != 0
                         SplitFlag = 3
                 else
                         SplitFlag = 1
@@ -306,10 +313,9 @@ function PlayAgain(Deck,numofdecks)
 end
 
 function Dealer(Dealer_Card, Second_Dealer_Card, Next_Dealer_Card, Tot_Next_Dealer_Card, Deck, numofdecks, Your_Sum)
-        Dealer_Sum = Dealer_Card + Second_Dealer_Card + Next_Dealer_Card
-
+        Dealer_Sum = Dealer_Card + Second_Dealer_Card + Tot_Next_Dealer_Card
         while Dealer_Sum < 17 && Your_Sum < 22
-                Next_Dealer_Card_Index  = rand(1:length(Deck))
+                Next_Dealer_Card_Index = rand(1:length(Deck))
                 Next_Dealer_Card = Deck[Next_Dealer_Card_Index]
                 while Next_Dealer_Card == 0
                         if Next_Dealer_Card == 0
@@ -326,7 +332,7 @@ function Dealer(Dealer_Card, Second_Dealer_Card, Next_Dealer_Card, Tot_Next_Deal
                 Deck[Next_Dealer_Card_Index] = 0
                 println("The Dealer's Next Card is ", CardFaceDealerNext)
         end
-        return Dealer_Sum, Deck, Next_Dealer_Card
+        return Dealer_Sum, Deck, Next_Dealer_Card, Tot_Next_Dealer_Card
 end
 
 function SomeoneHasAce(Card1, Card2, CardNew, TotCardNew, CardSum, biteme)
@@ -348,13 +354,11 @@ function SomeoneHasAce(Card1, Card2, CardNew, TotCardNew, CardSum, biteme)
                                 if CardSum > 21
                                         Card1 = 1
                                         CardSum = Card1 + Card2 + TotCardNew
-                                        #AceFlag -= 1
                                 end
                         elseif Card2 == 11
                                 if CardSum > 21
                                         Card2 = 1
                                         CardSum = Card1 + Card2 + TotCardNew
-                                        #AceFlag -= 1
                                 end
                         elseif CardNew == 11
                                 if CardSum > 21
@@ -364,7 +368,7 @@ function SomeoneHasAce(Card1, Card2, CardNew, TotCardNew, CardSum, biteme)
                                 else
                                         biteme += 1
                                 end
-                        elseif biteme == 1
+                        elseif biteme > 0
                                 if CardSum > 21
                                         TotCardNew -= 10
                                         CardSum = Card1 + Card2 + TotCardNew
@@ -382,7 +386,7 @@ function SomeoneHasAce(Card1, Card2, CardNew, TotCardNew, CardSum, biteme)
         return Card1, Card2, CardNew, TotCardNew, CardSum, biteme
 end
 
-function What_do_you_do(First_Card, Second_Card, Tot_Next_Card, Dealer_Card, CardFaces, streak, longest_streak, win_loss_ratio, correct_wrong_ratio)
+function What_do_you_do(First_Card, Second_Card, Tot_Next_Card, Dealer_Card, CardFaces, SplitFlag, streak, longest_streak, win_loss_ratio, correct_wrong_ratio)
         RIGHT = correct_wrong_ratio[1]
         WRONG = correct_wrong_ratio[2]
         Your_Sum = First_Card + Second_Card + Tot_Next_Card
@@ -401,20 +405,20 @@ function What_do_you_do(First_Card, Second_Card, Tot_Next_Card, Dealer_Card, Car
                         println("You have gotten ",correct_wrong_ratio[1]," calls right, and ", correct_wrong_ratio[2], " calls wrong. This makes your right/wrong record ", percent1,"%")
                         println("~ Your Win/ Loss Record is ~")
                         println("You have won ",win_loss_ratio[1]," games, lost ", win_loss_ratio[2], " and tied ", win_loss_ratio[3],". This makes your win/loss record ", percent2,"%")
-                        println("_______________________________________________________________________________________________________________________________")
+                        println("_____________________________________________________________________________________________________________________________")
                         println("Now that you know your  stats... What do you do now?")
                         println("Please recall that your Cards are ", CardFaces[1], " and ", CardFaces[2], " Dealer's Card is ",CardFaces[3])
                         What_You_Do = readline()
                         UhOh += 1
                         if What_You_Do == "stats" && UhOh > 1
-                                println("_______________________________________________________________________________________________________________________________")
+                                println("_____________________________________________________________________________________________________________________________")
                                 println("Are you dumb? I just showed you your stats... Literally nothing has changed... Please play the game and stop being a moron.")
                                 UhOh += 1
                                 println("Please recall that your Cards are ", CardFaces[1], " and ", CardFaces[2], " Dealer's Card is ",CardFaces[3])
                                 What_You_Do = readline()
                         end
                         if What_You_Do == "stats" && UhOh > 5
-                                println("_______________________________________________________________________________________________________________________________")
+                                println("_____________________________________________________________________________________________________________________________")
                                 println("Alright since you are an idiot maybe you will be entertained by this...")
                                 println("You found my Easter Egg... Cool I guess? You should focus more on your Blackjack though... You have lost ", win_loss_ratio[2], " times...")
                                 println("Please recall that your Cards are ", CardFaces[1], " and ", CardFaces[2], " Dealer's Card is ",CardFaces[3])
@@ -428,7 +432,7 @@ function What_do_you_do(First_Card, Second_Card, Tot_Next_Card, Dealer_Card, Car
                         What_You_Do = readline()
                         UhOh += 1
                         if What_You_Do == "chart" && UhOh > 1
-                                println("_______________________________________________________________________________________________________________________________")
+                                println("_____________________________________________________________________________________________________________________________")
                                 println("Are you dumb? The chart is literally right above this... Please play the game and stop being a moron...")
                                 UhOh += 1
                                 println("Please recall that your Cards are ", CardFaces[1], " and ", CardFaces[2], " Dealer's Card is ",CardFaces[3])
@@ -442,7 +446,7 @@ function What_do_you_do(First_Card, Second_Card, Tot_Next_Card, Dealer_Card, Car
                         What_You_Do = readline()
                         UhOh += 1
                         if What_You_Do == "help" && UhOh > 1
-                                println("_______________________________________________________________________________________________________________________________")
+                                println("_____________________________________________________________________________________________________________________________")
                                 println("Are you dumb? The tutorial is literally right above this... Please play the game and stop being a moron...")
                                 UhOh += 1
                                 println("Please recall that your Cards are ", CardFaces[1], " and ", CardFaces[2], " Dealer's Card is ",CardFaces[3])
@@ -479,7 +483,7 @@ function What_do_you_do(First_Card, Second_Card, Tot_Next_Card, Dealer_Card, Car
                 end
         end
 
-        if CardFaces[1] == CardFaces[2] && Tot_Next_Card == 0
+        if CardFaces[1] == CardFaces[2] && Tot_Next_Card == 0 && SplitFlag == 0
                 if First_Card < 4
                         if Dealer_Card < 8
                                 correct = "split"
@@ -650,6 +654,7 @@ function DidYouWin(Your_Sum, Dealer_Sum, Second_Dealer_Card, Tot_Next_Card, win_
         win = win_loss_ratio[1]
         loss = win_loss_ratio[2]
         tie = win_loss_ratio[3]
+        println("~ So who won? ~")
         println("Dealer has ", Dealer_Sum," You have ",Your_Sum)
         if Your_Sum > 21
                 println("BUST!")
@@ -686,9 +691,9 @@ function Want2PlayAgain(Deck)
         Play_Again = YesOrNo(Play_Again)
 
         if Play_Again == "y"
-                println("_______________________________________________________________________________________________________________________________")
+                println("_____________________________________________________________________________________________________________________________")
         else
-                println("_______________________________________________________________________________________________________________________________")
+                println("_____________________________________________________________________________________________________________________________")
                 println("Thanks for Playing!")
         end
         return Play_Again, Deck
@@ -698,9 +703,10 @@ function NumberOfDecks()
     flag = 1
     numofdecks = 0
     numofdecks_string = readline()
-    while typeof(numofdecks_string) != String
-        if typeof(numofdecks_string) != String
-            println("Sorry that is not a valid input. Please try again!")
+    println(numofdecks_string)
+    while numofdecks_string == ""
+        if numofdecks_string == ""
+                println("Sorry that is not a valid input. Please choose a value from 1 to 9!")
         end
         numofdecks_string = readline()
     end
@@ -753,7 +759,7 @@ function NumberOfDecks()
             flag = 1
         end
     end
-    println("_______________________________________________________________________________________________________________________________")
+    println("_____________________________________________________________________________________________________________________________")
     return numofdecks
 end
 
@@ -788,9 +794,8 @@ function YesOrNo(yesno)
 end
 
 function Rules()
-        println("_______________________________________________________________________________________________________________________________")
-        println("This is a game intended for any skill level, and is an easy, fun, and informative way to learn the game of Blackjack, and
-                 various advantaged play strategies.
+        println("_____________________________________________________________________________________________________________________________")
+        println("This is a game intended for any skill level, and is an easy, fun, and informative way to learn the game of Blackjack.
 
 The rules for this game are simple, correctly identify the best option when given a certain set of cards.
 
