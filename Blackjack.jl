@@ -5,7 +5,7 @@ function Blackjack()
         PlayedBefore = readline()
         PlayedBefore = YesOrNo(PlayedBefore)
 
-        if PlayedBefore == "n"
+        if PlayedBefore == "y"
                 Rules()
                 println("_____________________________________________________________________________________________________________________________")
                 println("Would you like to see the Basic Strategy Chart before playing? (y or n)")
