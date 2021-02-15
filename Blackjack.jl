@@ -395,6 +395,25 @@ function What_do_you_do(First_Card, Second_Card, Tot_Next_Card, Dealer_Card, Car
         What_You_Do = readline()
 
         UhOh = 0
+
+        if CardFaces[1] != CardFaces[2]
+                while What_You_Do == "split"
+                        println("Sorry, You can't Split right now... Try Again!")
+                        What_You_Do = readline()
+                end
+        end
+
+        if Tot_Next_Card != 0
+                while What_You_Do == "double"
+                        println("Sorry, You can't Double down right now... Try Again!")
+                        What_You_Do = readline()
+                end
+                while What_You_Do == "split"
+                        println("Sorry, You can't Split right now... Try Again!")
+                        What_You_Do = readline()
+                end
+        end
+
         while What_You_Do != "hit" && What_You_Do != "stand" && What_You_Do != "double" && What_You_Do != "split"
                 if What_You_Do == "stats"
                         percent1 = round(100*correct_wrong_ratio[1]/sum(correct_wrong_ratio), digits = 2)
@@ -694,7 +713,7 @@ function Want2PlayAgain(Deck)
                 println("_____________________________________________________________________________________________________________________________")
         else
                 println("_____________________________________________________________________________________________________________________________")
-                println("Thanks for Playing!")
+                println("Thanks for Playing! Here are your stats for the session!")
         end
         return Play_Again, Deck
 end
