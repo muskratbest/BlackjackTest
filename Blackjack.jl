@@ -18,7 +18,6 @@ function Blackjack()
                         println("Here it is! I recommend taking a picture it'll last longer.")
                         SeeChart()
                 elseif chart == "n"
-                        println("_____________________________________________________________________________________________________________________________")
                         println("Okay sounds good. Good luck and have fun!")
                 end
 
@@ -212,7 +211,7 @@ function Blackjack()
                         win_loss_ratio = DidYouWin(Your_Sum, Dealer_Sum, Second_Dealer_Card, Tot_Next_Card, win_loss_ratio, BlackjackFlag)
                 end
 
-                Play_Again, Deck = Want2PlayAgain(Deck)
+                Play_Again, Deck = Want2PlayAgain(Deck, streak, longest_streak, correct_wrong_ratio, win_loss_ratio)
 
                 ShuffleFlag = 0
                 #Time to Shuffle Decks?
@@ -308,31 +307,31 @@ function PlayAgain(Deck,numofdecks)
 
         CardFaces = [CardFace1,CardFace2,CardFaceDealer1,CardFaceDealer2]
         Your_Sum = First_Card + Second_Card
-        println("Your Cards are ", CardFaces[1], " and ", CardFaces[2], " Dealer's Card is ",CardFaces[3])
+        println("Your cards are ", CardFaces[1], " and ", CardFaces[2], " Dealer's Card is ",CardFaces[3])
+        if First_Card == 6 && Second_Card == 9
+                println("Nice.")
+        end
         return First_Card, Second_Card, Dealer_Card, Second_Dealer_Card, CardFaces
 end
 
-function Dealer(Dealer_Card, Second_Dealer_Card, Next_Dealer_Card, Tot_Next_Dealer_Card, Deck, numofdecks, Your_Sum)
-        Dealer_Sum = Dealer_Card + Second_Dealer_Card + Tot_Next_Dealer_Card
-        while Dealer_Sum < 17 && Your_Sum < 22
-                Next_Dealer_Card_Index = rand(1:length(Deck))
-                Next_Dealer_Card = Deck[Next_Dealer_Card_Index]
-                while Next_Dealer_Card == 0
-                        if Next_Dealer_Card == 0
-                                Next_Dealer_Card_Index = rand(1:length(Deck))
-                                Next_Dealer_Card = Deck[Next_Dealer_Card_Index]
-                        end
+function NextCard(Your_Sum, Deck, numofdecks, Tot_Next_Card, SplitFlag)
+        Next_Card_Index = rand(1:length(Deck))
+        Next_Card = Deck[Next_Card_Index]
+        while Next_Card == 0
+                if Next_Card == 0
+                        Next_Card_Index = rand(1:length(Deck))
+                        Next_Card = Deck[Next_Card_Index]
                 end
-                Tot_Next_Dealer_Card += Next_Dealer_Card
-                Dealer_Sum += Next_Dealer_Card
-                CardFaceDealerNext = Next_Dealer_Card
-
-                CardFaceDealerNext = CardFace(numofdecks, Next_Dealer_Card_Index, CardFaceDealerNext) # Determines the Face of the Card if Jack-Ace
-
-                Deck[Next_Dealer_Card_Index] = 0
-                println("The Dealer's Next Card is ", CardFaceDealerNext)
         end
-        return Dealer_Sum, Deck, Next_Dealer_Card, Tot_Next_Dealer_Card
+        CardFaceNext = Next_Card
+
+        CardFaceNext = CardFace(numofdecks, Next_Card_Index, CardFaceNext) # Determines the Face of the Card if Jack-Ace
+
+        Deck[Next_Card_Index] = 0
+        Your_Sum += Next_Card
+        Tot_Next_Card += Next_Card
+        println("Your Next Card is ", CardFaceNext)
+        return Deck, Next_Card, Tot_Next_Card, Your_Sum
 end
 
 function SomeoneHasAce(Card1, Card2, CardNew, TotCardNew, CardSum, biteme)
@@ -386,6 +385,29 @@ function SomeoneHasAce(Card1, Card2, CardNew, TotCardNew, CardSum, biteme)
         return Card1, Card2, CardNew, TotCardNew, CardSum, biteme
 end
 
+function Dealer(Dealer_Card, Second_Dealer_Card, Next_Dealer_Card, Tot_Next_Dealer_Card, Deck, numofdecks, Your_Sum)
+        Dealer_Sum = Dealer_Card + Second_Dealer_Card + Tot_Next_Dealer_Card
+        while Dealer_Sum < 17 && Your_Sum < 22
+                Next_Dealer_Card_Index = rand(1:length(Deck))
+                Next_Dealer_Card = Deck[Next_Dealer_Card_Index]
+                while Next_Dealer_Card == 0
+                        if Next_Dealer_Card == 0
+                                Next_Dealer_Card_Index = rand(1:length(Deck))
+                                Next_Dealer_Card = Deck[Next_Dealer_Card_Index]
+                        end
+                end
+                Tot_Next_Dealer_Card += Next_Dealer_Card
+                Dealer_Sum += Next_Dealer_Card
+                CardFaceDealerNext = Next_Dealer_Card
+
+                CardFaceDealerNext = CardFace(numofdecks, Next_Dealer_Card_Index, CardFaceDealerNext) # Determines the Face of the Card if Jack-Ace
+
+                Deck[Next_Dealer_Card_Index] = 0
+                println("The Dealer's Next Card is ", CardFaceDealerNext)
+        end
+        return Dealer_Sum, Deck, Next_Dealer_Card, Tot_Next_Dealer_Card
+end
+
 function What_do_you_do(First_Card, Second_Card, Tot_Next_Card, Dealer_Card, CardFaces, SplitFlag, streak, longest_streak, win_loss_ratio, correct_wrong_ratio)
         RIGHT = correct_wrong_ratio[1]
         WRONG = correct_wrong_ratio[2]
@@ -394,113 +416,18 @@ function What_do_you_do(First_Card, Second_Card, Tot_Next_Card, Dealer_Card, Car
 
         What_You_Do = readline()
 
-        UhOh = 0
+        # Make Sure they can split or double down when requesting
+        CEE = 0
+        What_You_Do = NiceTry(What_You_Do, Tot_Next_Card, CardFaces, CEE)
 
-        if CardFaces[1] != CardFaces[2]
-                while What_You_Do == "split"
-                        println("Sorry, You can't Split right now... Try Again!")
-                        What_You_Do = readline()
-                end
-        end
+        # Check for Alternative Inputs (stats, help, chart)
+        What_You_Do = AltOptions(streak, longest_streak, correct_wrong_ratio, win_loss_ratio, What_You_Do, CardFaces)
 
-        if Tot_Next_Card != 0
-                while What_You_Do == "double"
-                        println("Sorry, You can't Double down right now... Try Again!")
-                        What_You_Do = readline()
-                end
-                while What_You_Do == "split"
-                        println("Sorry, You can't Split right now... Try Again!")
-                        What_You_Do = readline()
-                end
-        end
-
-        while What_You_Do != "hit" && What_You_Do != "stand" && What_You_Do != "double" && What_You_Do != "split"
-                if What_You_Do == "stats"
-                        percent1 = round(100*correct_wrong_ratio[1]/sum(correct_wrong_ratio), digits = 2)
-                        percent2 = round(100*win_loss_ratio[1]/(win_loss_ratio[1]+win_loss_ratio[2]), digits = 2)
-                        println("____________ You have played ", sum(win_loss_ratio)," games so far! ____________")
-                        println("~ Your Correct/ Incorrect Call Record is ~")
-                        println("Your current correct call streak is ",streak,", and your longest correct call streak is ", longest_streak)
-                        println("You have gotten ",correct_wrong_ratio[1]," calls right, and ", correct_wrong_ratio[2], " calls wrong. This makes your right/wrong record ", percent1,"%")
-                        println("~ Your Win/ Loss Record is ~")
-                        println("You have won ",win_loss_ratio[1]," games, lost ", win_loss_ratio[2], " and tied ", win_loss_ratio[3],". This makes your win/loss record ", percent2,"%")
-                        println("_____________________________________________________________________________________________________________________________")
-                        println("Now that you know your  stats... What do you do now?")
-                        println("Please recall that your Cards are ", CardFaces[1], " and ", CardFaces[2], " Dealer's Card is ",CardFaces[3])
-                        What_You_Do = readline()
-                        UhOh += 1
-                        if What_You_Do == "stats" && UhOh > 1
-                                println("_____________________________________________________________________________________________________________________________")
-                                println("Are you dumb? I just showed you your stats... Literally nothing has changed... Please play the game and stop being a moron.")
-                                UhOh += 1
-                                println("Please recall that your Cards are ", CardFaces[1], " and ", CardFaces[2], " Dealer's Card is ",CardFaces[3])
-                                What_You_Do = readline()
-                        end
-                        if What_You_Do == "stats" && UhOh > 5
-                                println("_____________________________________________________________________________________________________________________________")
-                                println("Alright since you are an idiot maybe you will be entertained by this...")
-                                println("You found my Easter Egg... Cool I guess? You should focus more on your Blackjack though... You have lost ", win_loss_ratio[2], " times...")
-                                println("Please recall that your Cards are ", CardFaces[1], " and ", CardFaces[2], " Dealer's Card is ",CardFaces[3])
-                                What_You_Do = readline()
-                        end
-
-                elseif What_You_Do == "chart"
-                        SeeChart()
-                        println("Now that you have seen the Basic Strategy Chart... What do you do now?")
-                        println("Please recall that your Cards are ", CardFaces[1], " and ", CardFaces[2], " Dealer's Card is ",CardFaces[3])
-                        What_You_Do = readline()
-                        UhOh += 1
-                        if What_You_Do == "chart" && UhOh > 1
-                                println("_____________________________________________________________________________________________________________________________")
-                                println("Are you dumb? The chart is literally right above this... Please play the game and stop being a moron...")
-                                UhOh += 1
-                                println("Please recall that your Cards are ", CardFaces[1], " and ", CardFaces[2], " Dealer's Card is ",CardFaces[3])
-                                What_You_Do = readline()
-                        end
-
-                elseif What_You_Do == "help"
-                        Rules()
-                        println("Now that you have seen the tutorial again... What do you do now?")
-                        println("Please recall that your Cards are ", CardFaces[1], " and ", CardFaces[2], " Dealer's Card is ",CardFaces[3])
-                        What_You_Do = readline()
-                        UhOh += 1
-                        if What_You_Do == "help" && UhOh > 1
-                                println("_____________________________________________________________________________________________________________________________")
-                                println("Are you dumb? The tutorial is literally right above this... Please play the game and stop being a moron...")
-                                UhOh += 1
-                                println("Please recall that your Cards are ", CardFaces[1], " and ", CardFaces[2], " Dealer's Card is ",CardFaces[3])
-                                What_You_Do = readline()
-                        end
-
-                else
-                        println("Sorry, that was not a valid input. Please try again!")
-                        What_You_Do = readline()
-                        UhOh += 1
-                        if UhOh > 1 && What_You_Do != "hit" && What_You_Do != "stand" && What_You_Do != "double" && What_You_Do != "split"
-                                println("Sorry, that was not a valid input. Please try again! Recall: Valid inputs are 'hit', 'stand', 'double', or 'split'.")
-                                println("Please recall that your Cards are ", CardFaces[1], " and ", CardFaces[2], " Dealer's Card is ",CardFaces[3])
-                                What_You_Do = readline()
-                        end
-                end
-        end
-
-        if CardFaces[1] != CardFaces[2]
-                while What_You_Do == "split"
-                        println("Sorry, You can't Split right now... Try Again!")
-                        What_You_Do = readline()
-                end
-        end
-
-        if Tot_Next_Card != 0
-                while What_You_Do == "double"
-                        println("Sorry, You can't Double down right now... Try Again!")
-                        What_You_Do = readline()
-                end
-                while What_You_Do == "split"
-                        println("Sorry, You can't Split right now... Try Again!")
-                        What_You_Do = readline()
-                end
-        end
+        # Make Sure they can't do the Calvin Glitch
+        CEE = 1
+        println(CEE, " and ", What_You_Do)
+        What_You_Do = NiceTry(What_You_Do, Tot_Next_Card, CardFaces, CEE)
+        CEE = 0
 
         if CardFaces[1] == CardFaces[2] && Tot_Next_Card == 0 && SplitFlag == 0
                 if First_Card < 4
@@ -649,24 +576,108 @@ function What_do_you_do(First_Card, Second_Card, Tot_Next_Card, Dealer_Card, Car
         return What_You_Do, Your_Sum, streak, longest_streak, correct_wrong_ratio
 end
 
-function NextCard(Your_Sum, Deck, numofdecks, Tot_Next_Card, SplitFlag)
-        Next_Card_Index = rand(1:length(Deck))
-        Next_Card = Deck[Next_Card_Index]
-        while Next_Card == 0
-                if Next_Card == 0
-                        Next_Card_Index = rand(1:length(Deck))
-                        Next_Card = Deck[Next_Card_Index]
+function NiceTry(What_You_Do, Tot_Next_Card, CardFaces, CEE)
+
+        if CardFaces[1] != CardFaces[2]
+                while What_You_Do == "split"
+                        if CEE == 1
+                                println("Nice try Nivlac, but I patched this one!")
+                        end
+                        if What_You_Do == "split"
+                                println("Sorry, You can't Split right now... Try Again!")
+                                What_You_Do = readline()
+                                CEE == 0
+                        end
                 end
         end
-        CardFaceNext = Next_Card
 
-        CardFaceNext = CardFace(numofdecks, Next_Card_Index, CardFaceNext) # Determines the Face of the Card if Jack-Ace
+        if Tot_Next_Card != 0
+                while What_You_Do == "double"
+                        if What_You_Do == "double"
+                                println("Sorry, You can't double down right now... Try Again!")
+                                What_You_Do = readline()
+                        end
+                        CEE = 0
+                end
 
-        Deck[Next_Card_Index] = 0
-        Your_Sum += Next_Card
-        Tot_Next_Card += Next_Card
-        println("Your Next Card is ", CardFaceNext)
-        return Deck, Next_Card, Tot_Next_Card, Your_Sum
+                while What_You_Do == "split"
+                        if What_You_Do == "split"
+                                println("Sorry, You can't Split right now... Try Again!")
+                                What_You_Do = readline()
+                        end
+                        CEE = 0
+                end
+        end
+        return What_You_Do
+end
+
+function AltOptions(streak, longest_streak, correct_wrong_ratio, win_loss_ratio, What_You_Do, CardFaces)
+        UhOh = 0
+        while What_You_Do != "hit" && What_You_Do != "stand" && What_You_Do != "double" && What_You_Do != "split"
+                if What_You_Do == "stats"
+                        SeeStats(streak, longest_streak, correct_wrong_ratio, win_loss_ratio)
+                        println("_____________________________________________________________________________________________________________________________")
+                        println("Now that you know your  stats... What do you do now?")
+                        println("Please recall that your Cards are ", CardFaces[1], " and ", CardFaces[2], " Dealer's Card is ",CardFaces[3])
+                        What_You_Do = readline()
+                        UhOh += 1
+                        if What_You_Do == "stats" && UhOh > 1
+                                println("_____________________________________________________________________________________________________________________________")
+                                println("Are you dumb? I just showed you your stats... Literally nothing has changed... Please play the game and stop being a moron.")
+                                UhOh += 1
+                                println("Please recall that your Cards are ", CardFaces[1], " and ", CardFaces[2], " Dealer's Card is ",CardFaces[3])
+                                What_You_Do = readline()
+                        end
+                        if What_You_Do == "stats" && UhOh > 5
+                                println("_____________________________________________________________________________________________________________________________")
+                                println("Alright since you are an idiot maybe you will be entertained by this...")
+                                println("You found my Easter Egg... Cool I guess? You should focus more on your Blackjack though... You have lost ", win_loss_ratio[2], " times...")
+                                println("Please recall that your Cards are ", CardFaces[1], " and ", CardFaces[2], " Dealer's Card is ",CardFaces[3])
+                                What_You_Do = readline()
+                        end
+
+                elseif What_You_Do == "chart"
+                        SeeChart()
+                        println("Now that you have seen the Basic Strategy Chart... What do you do now?")
+                        println("Please recall that your Cards are ", CardFaces[1], " and ", CardFaces[2], " Dealer's Card is ",CardFaces[3])
+                        What_You_Do = readline()
+                        UhOh += 1
+                        if What_You_Do == "chart" && UhOh > 1
+                                println("_____________________________________________________________________________________________________________________________")
+                                println("Are you dumb? The chart is literally right above this... Please play the game and stop being a moron...")
+                                UhOh += 1
+                                println("Please recall that your Cards are ", CardFaces[1], " and ", CardFaces[2], " Dealer's Card is ",CardFaces[3])
+                                What_You_Do = readline()
+                        end
+
+                elseif What_You_Do == "help"
+                        Rules()
+                        println("_____________________________________________________________________________________________________________________________")
+                        println("Now that you have seen the tutorial again... What do you do now?")
+                        println("Please recall that your Cards are ", CardFaces[1], " and ", CardFaces[2], " Dealer's Card is ",CardFaces[3])
+                        What_You_Do = readline()
+                        UhOh += 1
+                        if What_You_Do == "help" && UhOh > 1
+                                println("_____________________________________________________________________________________________________________________________")
+                                println("Are you dumb? The tutorial is literally right above this... Please play the game and stop being a moron...")
+                                UhOh += 1
+                                println("Please recall that your Cards are ", CardFaces[1], " and ", CardFaces[2], " Dealer's Card is ",CardFaces[3])
+                                What_You_Do = readline()
+                        end
+
+                else
+                        println("Sorry, that was not a valid input. Please try again!")
+                        What_You_Do = readline()
+                        UhOh += 1
+                        if UhOh > 1 && What_You_Do != "hit" && What_You_Do != "stand" && What_You_Do != "double" && What_You_Do != "split"
+                                println("Sorry, that was not a valid input. Please try again! Recall: Valid inputs are 'hit', 'stand', 'double', or 'split'.")
+                                println("Please recall that your Cards are ", CardFaces[1], " and ", CardFaces[2], " Dealer's Card is ",CardFaces[3])
+                                What_You_Do = readline()
+                        end
+                end
+        end
+        UhOh = 0
+        return What_You_Do
 end
 
 function DidYouWin(Your_Sum, Dealer_Sum, Second_Dealer_Card, Tot_Next_Card, win_loss_ratio, BlackjackFlag)
@@ -703,17 +714,47 @@ function DidYouWin(Your_Sum, Dealer_Sum, Second_Dealer_Card, Tot_Next_Card, win_
         return win_loss_ratio
 end
 
-function Want2PlayAgain(Deck)
+function Want2PlayAgain(Deck, streak, longest_streak, correct_wrong_ratio, win_loss_ratio)
         println("Want to Play Again? (y or n)")
+        StatsFlag = 0
+        ChartFlag = 0
+        RulesFlag = 0
 
         Play_Again = readline()
-        Play_Again = YesOrNo(Play_Again)
+
+        while Play_Again != "y" && Play_Again != "n"
+                if Play_Again == "stats" && StatsFlag == 0
+                        SeeStats(streak, longest_streak, correct_wrong_ratio, win_loss_ratio)
+                        StatsFlag = 1
+                        println("_____________________________________________________________________________________________________________________________")
+                        println("Want to Play Again? (y or n)")
+                        Play_Again = readline()
+                elseif Play_Again == "chart" && ChartFlag == 0
+                        SeeChart()
+                        ChartFlag = 1
+                        println("_____________________________________________________________________________________________________________________________")
+                        println("Want to Play Again? (y or n)")
+                        Play_Again = readline()
+                elseif Play_Again == "help" && RulesFlag == 0
+                        Rules()
+                        RulesFlag = 1
+                        println("_____________________________________________________________________________________________________________________________")
+                        println("Want to Play Again? (y or n)")
+                        Play_Again = readline()
+                else
+                        println("Sorry, that is not a valid input at this time. Please try again!")
+                        println("You can say y, n, or stats, chart, and help once each before starting your next game.")
+                        Play_Again = readline()
+                end
+        end
 
         if Play_Again == "y"
                 println("_____________________________________________________________________________________________________________________________")
         else
                 println("_____________________________________________________________________________________________________________________________")
                 println("Thanks for Playing! Here are your stats for the session!")
+                SeeStats(streak, longest_streak, correct_wrong_ratio, win_loss_ratio)
+
         end
         return Play_Again, Deck
 end
@@ -811,6 +852,18 @@ function YesOrNo(yesno)
         return yesno
 end
 
+function SeeStats(streak, longest_streak, correct_wrong_ratio, win_loss_ratio)
+        percent1 = round(100*correct_wrong_ratio[1]/sum(correct_wrong_ratio), digits = 2)
+        percent2 = round(100*win_loss_ratio[1]/(win_loss_ratio[1]+win_loss_ratio[2]), digits = 2)
+        println("____________ You have played ", sum(win_loss_ratio)," games! ____________")
+        println("~ Your Correct/ Incorrect Call Record is ~")
+        println("Your current correct call streak is ",streak,", and your longest correct call streak is ", longest_streak)
+        println("You have gotten ",correct_wrong_ratio[1]," calls right, and ", correct_wrong_ratio[2], " calls wrong. This makes your right/wrong record ", percent1,"%")
+        println("~ Your Win/ Loss Record is ~")
+        println("You have won ",win_loss_ratio[1]," games, lost ", win_loss_ratio[2], " and tied ", win_loss_ratio[3],". This makes your win/loss record ", percent2,"%")
+end
+
+
 function Rules()
         println("_____________________________________________________________________________________________________________________________")
         println("This is a game intended for any skill level, and is an easy, fun, and informative way to learn the game of Blackjack.
@@ -827,9 +880,10 @@ Rules:
         To win in the game of Blackjack, you want the sum of your cards to be as close to 21 as possible without going over.
         If the sum of your first two cards is 21, that is a Blackjack!
         So long as the dealer does not also have a Blackjack, you will win some extra cash on top of your bet.
+        The dealer will hit until they have a sum of 17 or greater. Currently, dealer stands on a soft 17.
 
         You can choose to Stand, which means you end your turn and will not receive more cards.
-        Hit, which means you receive an additional card and can choose to either hit again or stand
+        Hit, which means you receive an additional card and can choose to either hit again or stand.
         Upon getting your first two cards you can do two alternative things to hitting or standing.
 
 
