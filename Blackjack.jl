@@ -416,18 +416,7 @@ function What_do_you_do(First_Card, Second_Card, Tot_Next_Card, Dealer_Card, Car
 
         What_You_Do = readline()
 
-        # Make Sure they can split or double down when requesting
-        CEE = 0
-        What_You_Do = NiceTry(What_You_Do, Tot_Next_Card, CardFaces, CEE)
-
-        # Check for Alternative Inputs (stats, help, chart)
-        What_You_Do = AltOptions(streak, longest_streak, correct_wrong_ratio, win_loss_ratio, What_You_Do, CardFaces)
-
-        # Make Sure they can't do the Calvin Glitch
-        CEE = 1
-        println(CEE, " and ", What_You_Do)
-        What_You_Do = NiceTry(What_You_Do, Tot_Next_Card, CardFaces, CEE)
-        CEE = 0
+        What_You_Do = NiceTry(What_You_Do, Tot_Next_Card, CardFaces)
 
         if CardFaces[1] == CardFaces[2] && Tot_Next_Card == 0 && SplitFlag == 0
                 if First_Card < 4
@@ -576,17 +565,25 @@ function What_do_you_do(First_Card, Second_Card, Tot_Next_Card, Dealer_Card, Car
         return What_You_Do, Your_Sum, streak, longest_streak, correct_wrong_ratio
 end
 
-function NiceTry(What_You_Do, Tot_Next_Card, CardFaces, CEE)
+function NiceTry(What_You_Do, Tot_Next_Card, CardFaces)
+        UhOh = 0
+        while What_You_Do != "stand" && What_You_Do != "hit" && What_You_Do != "double" && What_You_Do != "split"
+                if What_You_Do != "stand" && What_You_Do != "hit" && What_You_Do != "double" && What_You_Do != "split"
+                        println("Sorry, that was not a valid input. Please try again!")
+                        What_You_Do = readline()
+                        UhOh += 1
+                        if UhOh > 1 && What_You_Do != "y" && What_You_Do != "n"
+                                println("Sorry, that was not a valid input. Remember, the valid inputs are 'stand', 'hit', 'double', or 'split'.")
+                                What_You_Do = readline()
+                        end
+                end
+        end
 
         if CardFaces[1] != CardFaces[2]
                 while What_You_Do == "split"
-                        if CEE == 1
-                                println("Nice try Nivlac, but I patched this one!")
-                        end
                         if What_You_Do == "split"
                                 println("Sorry, You can't Split right now... Try Again!")
                                 What_You_Do = readline()
-                                CEE == 0
                         end
                 end
         end
@@ -597,7 +594,6 @@ function NiceTry(What_You_Do, Tot_Next_Card, CardFaces, CEE)
                                 println("Sorry, You can't double down right now... Try Again!")
                                 What_You_Do = readline()
                         end
-                        CEE = 0
                 end
 
                 while What_You_Do == "split"
@@ -605,78 +601,9 @@ function NiceTry(What_You_Do, Tot_Next_Card, CardFaces, CEE)
                                 println("Sorry, You can't Split right now... Try Again!")
                                 What_You_Do = readline()
                         end
-                        CEE = 0
                 end
         end
-        return What_You_Do
-end
 
-function AltOptions(streak, longest_streak, correct_wrong_ratio, win_loss_ratio, What_You_Do, CardFaces)
-        UhOh = 0
-        while What_You_Do != "hit" && What_You_Do != "stand" && What_You_Do != "double" && What_You_Do != "split"
-                if What_You_Do == "stats"
-                        SeeStats(streak, longest_streak, correct_wrong_ratio, win_loss_ratio)
-                        println("_____________________________________________________________________________________________________________________________")
-                        println("Now that you know your  stats... What do you do now?")
-                        println("Please recall that your Cards are ", CardFaces[1], " and ", CardFaces[2], " Dealer's Card is ",CardFaces[3])
-                        What_You_Do = readline()
-                        UhOh += 1
-                        if What_You_Do == "stats" && UhOh > 1
-                                println("_____________________________________________________________________________________________________________________________")
-                                println("Are you dumb? I just showed you your stats... Literally nothing has changed... Please play the game and stop being a moron.")
-                                UhOh += 1
-                                println("Please recall that your Cards are ", CardFaces[1], " and ", CardFaces[2], " Dealer's Card is ",CardFaces[3])
-                                What_You_Do = readline()
-                        end
-                        if What_You_Do == "stats" && UhOh > 5
-                                println("_____________________________________________________________________________________________________________________________")
-                                println("Alright since you are an idiot maybe you will be entertained by this...")
-                                println("You found my Easter Egg... Cool I guess? You should focus more on your Blackjack though... You have lost ", win_loss_ratio[2], " times...")
-                                println("Please recall that your Cards are ", CardFaces[1], " and ", CardFaces[2], " Dealer's Card is ",CardFaces[3])
-                                What_You_Do = readline()
-                        end
-
-                elseif What_You_Do == "chart"
-                        SeeChart()
-                        println("Now that you have seen the Basic Strategy Chart... What do you do now?")
-                        println("Please recall that your Cards are ", CardFaces[1], " and ", CardFaces[2], " Dealer's Card is ",CardFaces[3])
-                        What_You_Do = readline()
-                        UhOh += 1
-                        if What_You_Do == "chart" && UhOh > 1
-                                println("_____________________________________________________________________________________________________________________________")
-                                println("Are you dumb? The chart is literally right above this... Please play the game and stop being a moron...")
-                                UhOh += 1
-                                println("Please recall that your Cards are ", CardFaces[1], " and ", CardFaces[2], " Dealer's Card is ",CardFaces[3])
-                                What_You_Do = readline()
-                        end
-
-                elseif What_You_Do == "help"
-                        Rules()
-                        println("_____________________________________________________________________________________________________________________________")
-                        println("Now that you have seen the tutorial again... What do you do now?")
-                        println("Please recall that your Cards are ", CardFaces[1], " and ", CardFaces[2], " Dealer's Card is ",CardFaces[3])
-                        What_You_Do = readline()
-                        UhOh += 1
-                        if What_You_Do == "help" && UhOh > 1
-                                println("_____________________________________________________________________________________________________________________________")
-                                println("Are you dumb? The tutorial is literally right above this... Please play the game and stop being a moron...")
-                                UhOh += 1
-                                println("Please recall that your Cards are ", CardFaces[1], " and ", CardFaces[2], " Dealer's Card is ",CardFaces[3])
-                                What_You_Do = readline()
-                        end
-
-                else
-                        println("Sorry, that was not a valid input. Please try again!")
-                        What_You_Do = readline()
-                        UhOh += 1
-                        if UhOh > 1 && What_You_Do != "hit" && What_You_Do != "stand" && What_You_Do != "double" && What_You_Do != "split"
-                                println("Sorry, that was not a valid input. Please try again! Recall: Valid inputs are 'hit', 'stand', 'double', or 'split'.")
-                                println("Please recall that your Cards are ", CardFaces[1], " and ", CardFaces[2], " Dealer's Card is ",CardFaces[3])
-                                What_You_Do = readline()
-                        end
-                end
-        end
-        UhOh = 0
         return What_You_Do
 end
 
@@ -715,7 +642,10 @@ function DidYouWin(Your_Sum, Dealer_Sum, Second_Dealer_Card, Tot_Next_Card, win_
 end
 
 function Want2PlayAgain(Deck, streak, longest_streak, correct_wrong_ratio, win_loss_ratio)
+        println("_____________________________________________________________________________________________________________________________")
         println("Want to Play Again? (y or n)")
+        println("You can also check your stats, the basic strategy guide, or tutorial now. ('stats', 'chart', 'help')")
+
         StatsFlag = 0
         ChartFlag = 0
         RulesFlag = 0
@@ -753,6 +683,7 @@ function Want2PlayAgain(Deck, streak, longest_streak, correct_wrong_ratio, win_l
         else
                 println("_____________________________________________________________________________________________________________________________")
                 println("Thanks for Playing! Here are your stats for the session!")
+                println("_____________________________________________________________________________________________________________________________")
                 SeeStats(streak, longest_streak, correct_wrong_ratio, win_loss_ratio)
 
         end
@@ -760,66 +691,54 @@ function Want2PlayAgain(Deck, streak, longest_streak, correct_wrong_ratio, win_l
 end
 
 function NumberOfDecks()
-    flag = 1
-    numofdecks = 0
-    numofdecks_string = readline()
-    while numofdecks_string == ""
-        if numofdecks_string == ""
-                println("Sorry that is not a valid input. Please choose a value from 1 to 9!")
-        end
+        flag = 1
+        numofdecks = 0
         numofdecks_string = readline()
-    end
-    ASCII_First = Int(numofdecks_string[1])
-    ASCII_Last = Int(numofdecks_string[length(numofdecks_string)])
 
-    while flag > 0
-        if ASCII_First == 49 && ASCII_First == ASCII_Last || ASCII_First == 50 && ASCII_First == ASCII_Last || ASCII_First == 51 && ASCII_First == ASCII_Last || ASCII_First == 52 && ASCII_First == ASCII_Last || ASCII_First == 53 && ASCII_First == ASCII_Last || ASCII_First == 54 && ASCII_First == ASCII_Last || ASCII_First == 55 && ASCII_First == ASCII_Last || ASCII_First == 56 && ASCII_First == ASCII_Last || ASCII_First == 57 && ASCII_First == ASCII_Last
-            numofdecks = parse(Int64, numofdecks_string)
-            flag = 0
-            if numofdecks > 9
-                println("Sorry that is not a valid input. Please try again!")
-                numofdecks_string = readline()
-                while typeof(numofdecks_string) != String
-                    if typeof(numofdecks_string) != String
+        while numofdecks_string == ""
+                if numofdecks_string == ""
+                        println("Sorry that is not a valid input. Please choose a value from 1 to 9!")
+                        numofdecks_string = readline()
+                end
+        end
+
+        ASCII_First = Int(numofdecks_string[1])
+        ASCII_Last = Int(numofdecks_string[length(numofdecks_string)])
+
+        while flag > 0
+                if ASCII_First == 49 && ASCII_First == ASCII_Last || ASCII_First == 50 && ASCII_First == ASCII_Last || ASCII_First == 51 && ASCII_First == ASCII_Last || ASCII_First == 52 && ASCII_First == ASCII_Last || ASCII_First == 53 && ASCII_First == ASCII_Last || ASCII_First == 54 && ASCII_First == ASCII_Last || ASCII_First == 55 && ASCII_First == ASCII_Last || ASCII_First == 56 && ASCII_First == ASCII_Last || ASCII_First == 57 && ASCII_First == ASCII_Last
+                        numofdecks = parse(Int64, numofdecks_string)
+                        flag = 0
+                else
                         println("Sorry that is not a valid input. Please try again!")
-                    end
-                    numofdecks_string = readline()
+                        numofdecks_string = readline()
+                        while numofdecks_string == ""
+                                if numofdecks_string == ""
+                                        println("Sorry that is not a valid input. Please try again!")
+                                        numofdecks_string = readline()
+                                end
+                        end
+                        ASCII_First = Int(numofdecks_string[1])
+                        ASCII_Last = Int(numofdecks_string[length(numofdecks_string)])
+                        flag += 1
                 end
-                ASCII_First = Int(numofdecks_string[1])
-                ASCII_Last = Int(numofdecks_string[length(numofdecks_string)])
-                flag += 1
-            end
 
-        else
-            println("Sorry that is not a valid input. Please try again!")
-            numofdecks_string = readline()
-            while typeof(numofdecks_string) != String
-                if typeof(numofdecks_string) != String
-                    println("Sorry that is not a valid input. Please try again!")
+                if flag > 2
+                        println("Sorry that is not a valid input. Please choose a value from 1 to 9!")
+                        numofdecks_string = readline()
+                        while numofdecks_string == ""
+                                if numofdecks_string == ""
+                                        println("Sorry that is not a valid input. Please try again!")
+                                        numofdecks_string = readline()
+                                end
+                        end
+                        ASCII_First = Int(numofdecks_string[1])
+                        ASCII_Last = Int(numofdecks_string[length(numofdecks_string)])
+                        flag = 1
                 end
-                numofdecks_string = readline()
-            end
-            ASCII_First = Int(numofdecks_string[1])
-            ASCII_Last = Int(numofdecks_string[length(numofdecks_string)])
-            flag += 1
         end
-
-        if flag > 2
-            println("Sorry that is not a valid input. Please choose a value from 1 to 9!")
-            numofdecks_string = readline()
-            while typeof(numofdecks_string) != String
-                if typeof(numofdecks_string) != String
-                    println("Sorry that is not a valid input. Please try again!")
-                end
-                numofdecks_string = readline()
-            end
-            ASCII_First = Int(numofdecks_string[1])
-            ASCII_Last = Int(numofdecks_string[length(numofdecks_string)])
-            flag = 1
-        end
-    end
-    println("_____________________________________________________________________________________________________________________________")
-    return numofdecks
+        println("_____________________________________________________________________________________________________________________________")
+        return numofdecks
 end
 
 function CardFace(numofdecks, Index, CardFace)
@@ -871,10 +790,11 @@ function Rules()
 The rules for this game are simple, correctly identify the best option when given a certain set of cards.
 
 Commands:
-        Your input options are 'hit', 'stand', 'split','double' and they are case sensitive.
-        If you want to know your stats such as your correct call streak or win/ lost record: type 'stats'.
-        If you want to see the basic strategy chart: type 'chart'.
-        If you want to see this tutorial list again: type 'help'.
+        Your input options mid round are 'hit', 'stand', 'split','double' and they are case sensitive.
+        Between rounds you can do the following:
+                If you want to know your stats such as your correct call streak or win/ lost record: type 'stats'.
+                If you want to see the basic strategy chart: type 'chart'.
+                If you want to see this tutorial list again: type 'help'.
 
 Rules:
         To win in the game of Blackjack, you want the sum of your cards to be as close to 21 as possible without going over.
