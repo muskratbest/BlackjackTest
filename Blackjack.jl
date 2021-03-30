@@ -25,11 +25,13 @@ function Blackjack()
 
         println("_____________________________________________________________________________________________________________________________")
         println("How many decks would you like to play with? (Number Value 1-9)")
+        println("This can ~NOT~ be changed later.")
         numofdecks = NumberOfDecks()
 
 
         println("_____________________________________________________________________________________________________________________________")
-        println("How often do you want to be tested on the Running Count? ('never', 'low', 'medium', 'high', 'always')")
+        println("How frequently do you want to be quizzed on the Running Count? ('never', 'low', 'medium', 'high', 'always')")
+        println("This can ~NOT~ be changed later.")
         pop = PopQuiz()
 
         Play_Again = "y"
@@ -884,6 +886,8 @@ function Rules()
 The rules for this game are simple, correctly identify the best option when given a certain set of cards.
 
 Commands:
+        Once you have chosen a card count quiz frequency and a number of decks this can not be changed later.
+
         Your input options mid round are 'hit', 'stand', 'split','double' and they are case sensitive.
         Between rounds you can do the following:
                 If you want to know your stats such as your correct call streak or win/ lost record: type 'stats'.
@@ -912,7 +916,17 @@ Advantaged Play:
         If you follow the chart perfectly, it reduces the casinos odds of winning to about 0.5%.
         In other words, follow this chart and you will only lose fifty cents for every one hundred dollars you bet!
 
-        'Card Counting' - is a planned feature to be added... stay tuned.")
+        'Card Counting' - is a method that allows people to make smarter bets.
+        With each new card the running count can change. Cards 2 through 6 make the count increase by 1.
+        Cards 7 through 9 do not change the running count. Cards 10, Jack, Queen, King, and Ace decrease the count by 1.
+        This reflects whether the next game will be in your favor or the dealers. A HIGH count indicates that it is in
+        the YOUR favor, while a LOW count indicates the DEALER will likely win.
+        In practice, you should adjust your bets based on the running count!
+
+        In summary of card counting: 2-6 increases count by one
+                                     7-9 doesn't change the count
+                                     10-Ace decreases count by one
+                                     High count is good for you, low is bad for you.")
 end
 
 function SeeChart()
