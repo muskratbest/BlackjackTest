@@ -26,14 +26,20 @@ function Blackjack()
         println("_____________________________________________________________________________________________________________________________")
         println("How many decks would you like to play with? (Number Value 1-9)")
         numofdecks = NumberOfDecks()
-        Play_Again = "y"
 
+
+        println("_____________________________________________________________________________________________________________________________")
+        println("How often do you want to be tested on the Running Count? ('never', 'low', 'medium', 'high', 'always')")
+        pop = PopQuiz()
+
+        Play_Again = "y"
         # New Game Original Deck
         streak = 0
         longest_streak = 0
-        correct_wrong_ratio = [0 0] #[RIGHT, WRONG]
+        RunningCount = 0
+        correct_wrong_ratio = [0 0 0 0] #[RIGHT, WRONG, Correct Count, Incorrect Count]
         win_loss_ratio = [0 0 0] #[win, loss, tie]
-        Deck, original_length = Shuffle(numofdecks)
+        Deck, original_length, RunningCount = Shuffle(numofdecks, RunningCount)
 
         while Play_Again == "y"
                 #Initialize New Hand
@@ -59,7 +65,7 @@ function Blackjack()
                 What_You_Do = "Play"
 
                 #Deal Cards
-                First_Card, Second_Card, Dealer_Card, Second_Dealer_Card, CardFaces = PlayAgain(Deck,numofdecks)
+                First_Card, Second_Card, Dealer_Card, Second_Dealer_Card, CardFaces, RunningCount = PlayAgain(Deck, numofdecks, RunningCount)
                 Your_Sum = First_Card + Second_Card
 
                 #Check for Blackjack
@@ -135,6 +141,17 @@ function Blackjack()
                                                 Second_Card2_Face = CardFace(numofdecks, Second_Card2_Index, Second_Card2_Face) # Determines the Face of the Card if Jack-Ace
 
                                                 Deck[Second_Card2_Index] = 0
+
+                                                Count = [Second_Card1 Second_Card2]
+                                                for i in Count
+                                                        if i in [2, 3, 4, 5, 6]
+                                                            RunningCount += 1
+                                                        elseif i in [10, 11]
+                                                            RunningCount -= 1
+                                                        end
+                                                end
+                                                println(RunningCount)
+
                                         else
                                                 while What_You_Do == "split"
                                                         println("Sorry, you can only split once per round. Please try again!")
@@ -147,6 +164,16 @@ function Blackjack()
                                         if What_You_Do != "stand"
                                                 Deck, Next_Card, Tot_Next_Card, Your_Sum = NextCard(Your_Sum, Deck, numofdecks, Tot_Next_Card, SplitFlag)
                                         end
+
+                                        Count = [Next_Card]
+                                        for i in Count
+                                                if i in [2, 3, 4, 5, 6]
+                                                    RunningCount += 1
+                                                elseif i in [10, 11]
+                                                    RunningCount -= 1
+                                                end
+                                        end
+                                        println(RunningCount)
                                         First_Card, Second_Card, Next_Card, Tot_Next_Card, Your_Sum, biteme = SomeoneHasAce(First_Card, Second_Card, Next_Card, Tot_Next_Card, Your_Sum, biteme)
                                         IdiotAlert = 0
                                 end
@@ -176,6 +203,7 @@ function Blackjack()
                         abort = "YES"
                         println("~ Dealer's Turn ~")
                         println("The Dealer's Second Card is ", CardFaces[4])
+
                         Dealer_Sum = Dealer_Card + Second_Dealer_Card + Next_Dealer_Card
                 else
                         abort = "NO"
@@ -184,7 +212,7 @@ function Blackjack()
                 end
 
                 while abort != "YES"
-                        Dealer_Sum, Deck, Next_Dealer_Card, Tot_Next_Dealer_Card = Dealer(Dealer_Card, Second_Dealer_Card, Next_Dealer_Card, Tot_Next_Dealer_Card, Deck, numofdecks, Your_Sum)
+                        Dealer_Sum, Deck, Next_Dealer_Card, Tot_Next_Dealer_Card, RunningCount = Dealer(Dealer_Card, Second_Dealer_Card, Next_Dealer_Card, Tot_Next_Dealer_Card, Deck, numofdecks, Your_Sum, RunningCount)
                         Dealer_Card, Second_Dealer_Card, Next_Dealer_Card, Tot_Next_Dealer_Card, Dealer_Sum, biteme = SomeoneHasAce(Dealer_Card, Second_Dealer_Card, Next_Dealer_Card, Tot_Next_Dealer_Card, Dealer_Sum, biteme)
                         if Dealer_Sum > 17 || Dealer_Sum == 17
                                 abort = "YES"
@@ -211,7 +239,7 @@ function Blackjack()
                         win_loss_ratio = DidYouWin(Your_Sum, Dealer_Sum, Second_Dealer_Card, Tot_Next_Card, win_loss_ratio, BlackjackFlag)
                 end
 
-                Play_Again, Deck = Want2PlayAgain(Deck, streak, longest_streak, correct_wrong_ratio, win_loss_ratio)
+                Play_Again, Deck, RunningCount = Want2PlayAgain(Deck, streak, longest_streak, correct_wrong_ratio, win_loss_ratio, RunningCount, pop)
 
                 ShuffleFlag = 0
                 #Time to Shuffle Decks?
@@ -223,15 +251,17 @@ function Blackjack()
 
                 if ShuffleFlag > 0.5 * original_length
                         println("~ You notice that the deck has just been shuffled ~")
-                        Deck, original_length = Shuffle(numofdecks)
+                        Deck, original_length, RunningCount = Shuffle(numofdecks, RunningCount)
                 end
         end
 end
 
-function Shuffle(numofdecks)
+function Shuffle(numofdecks, RunningCount)
         Jack = 10
         Queen = 10
         King = 10
+
+        RunningCount = 0
 
         Deck = [2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 6, 6, 6, 6, 7, 7, 7, 7, 8, 8, 8, 8, 9, 9, 9, 9, 10, 10, 10, 10, Jack, Jack, Jack, Jack, Queen, Queen, Queen, Queen, King, King, King, King, 11, 11, 11, 11]
         Deck2 = [2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 6, 6, 6, 6, 7, 7, 7, 7, 8, 8, 8, 8, 9, 9, 9, 9, 10, 10, 10, 10, Jack, Jack, Jack, Jack, Queen, Queen, Queen, Queen, King, King, King, King, 11, 11, 11, 11]
@@ -245,10 +275,10 @@ function Shuffle(numofdecks)
         end
 
         original_length = length(Deck)
-        return Deck, original_length
+        return Deck, original_length, RunningCount
 end
 
-function PlayAgain(Deck,numofdecks)
+function PlayAgain(Deck, numofdecks, RunningCount)
         First_Card_Index = rand(1:length(Deck))
         First_Card = Deck[First_Card_Index]
         while First_Card == 0
@@ -311,7 +341,18 @@ function PlayAgain(Deck,numofdecks)
         if First_Card == 6 && Second_Card == 9
                 println("Nice.")
         end
-        return First_Card, Second_Card, Dealer_Card, Second_Dealer_Card, CardFaces
+
+        Count = [First_Card, Second_Card, Dealer_Card, Second_Dealer_Card]
+        for i in Count
+                if i in [2, 3, 4, 5, 6]
+                    RunningCount += 1
+                elseif i in [10, 11]
+                    RunningCount -= 1
+                end
+        end
+        println(RunningCount, Count)
+
+        return First_Card, Second_Card, Dealer_Card, Second_Dealer_Card, CardFaces, RunningCount
 end
 
 function NextCard(Your_Sum, Deck, numofdecks, Tot_Next_Card, SplitFlag)
@@ -367,7 +408,7 @@ function SomeoneHasAce(Card1, Card2, CardNew, TotCardNew, CardSum, biteme)
                                 else
                                         biteme += 1
                                 end
-                        elseif biteme > 0
+                        elseif biteme != 0
                                 if CardSum > 21
                                         TotCardNew -= 10
                                         CardSum = Card1 + Card2 + TotCardNew
@@ -385,7 +426,7 @@ function SomeoneHasAce(Card1, Card2, CardNew, TotCardNew, CardSum, biteme)
         return Card1, Card2, CardNew, TotCardNew, CardSum, biteme
 end
 
-function Dealer(Dealer_Card, Second_Dealer_Card, Next_Dealer_Card, Tot_Next_Dealer_Card, Deck, numofdecks, Your_Sum)
+function Dealer(Dealer_Card, Second_Dealer_Card, Next_Dealer_Card, Tot_Next_Dealer_Card, Deck, numofdecks, Your_Sum, RunningCount)
         Dealer_Sum = Dealer_Card + Second_Dealer_Card + Tot_Next_Dealer_Card
         while Dealer_Sum < 17 && Your_Sum < 22
                 Next_Dealer_Card_Index = rand(1:length(Deck))
@@ -404,8 +445,18 @@ function Dealer(Dealer_Card, Second_Dealer_Card, Next_Dealer_Card, Tot_Next_Deal
 
                 Deck[Next_Dealer_Card_Index] = 0
                 println("The Dealer's Next Card is ", CardFaceDealerNext)
+
+                Count = [Next_Dealer_Card]
+                for i in Count
+                        if i in [2, 3, 4, 5, 6]
+                            RunningCount += 1
+                        elseif i in [10, 11]
+                            RunningCount -= 1
+                        end
+                end
+                println(RunningCount)
         end
-        return Dealer_Sum, Deck, Next_Dealer_Card, Tot_Next_Dealer_Card
+        return Dealer_Sum, Deck, Next_Dealer_Card, Tot_Next_Dealer_Card, RunningCount
 end
 
 function What_do_you_do(First_Card, Second_Card, Tot_Next_Card, Dealer_Card, CardFaces, SplitFlag, streak, longest_streak, win_loss_ratio, correct_wrong_ratio)
@@ -641,14 +692,59 @@ function DidYouWin(Your_Sum, Dealer_Sum, Second_Dealer_Card, Tot_Next_Card, win_
         return win_loss_ratio
 end
 
-function Want2PlayAgain(Deck, streak, longest_streak, correct_wrong_ratio, win_loss_ratio)
+function Want2PlayAgain(Deck, streak, longest_streak, correct_wrong_ratio, win_loss_ratio, RunningCount, pop)
         println("_____________________________________________________________________________________________________________________________")
+
+        Totgames = sum(win_loss_ratio)
+        popq = 0
+        if pop != 0
+                popq = rand(1:pop)
+        end
+        if popq == 1
+                println("POPQUIZ TIME! What is the current running count?")
+                quizAnswer = readline()
+                values = ["-25", "-24", "-23", "-22", "-21", "-20", "-19", "-18", "-17", "-16", "-15", "-14", "-13", "-12", "-11", "-10", "-9", "-8", "-7", "-6", "-5","-4",
+                          "-3", "-2", "-1", "0", "25", "24", "23", "22" ,"21" ,"20" ,"19" ,"18", "17", "16", "15", "14", "13", "12", "11" ,"10" ,"9" ,"8"
+                          ,"7", "6" ,"5", "4" ,"3" ,"2" ,"1"]
+                a = quizAnswer in values
+                while a == false
+                        if a == false
+                                println("Invalid Input. Please Try Again!")
+                                quizAnswer = readline()
+                                a = quizAnswer in values
+                        end
+                end
+                quizAnswer = parse(Int64, quizAnswer)
+                if quizAnswer == RunningCount
+                        println("EYOOOO you got it, keep up the good work!")
+                        correct_wrong_ratio[3] += 1
+                else
+                        println("Sorry but that is not the running count... the correct answer is: ", RunningCount)
+                        correct_wrong_ratio[4] += 1
+                end
+                        println("_____________________________________________________________________________________________________________________________")
+                end
+        end
+
         println("Want to Play Again? (y or n)")
         println("You can also check your stats, the basic strategy guide, or tutorial now. ('stats', 'chart', 'help')")
 
         StatsFlag = 0
         ChartFlag = 0
         RulesFlag = 0
+
+        percent = round(100*correct_wrong_ratio[1]/sum(correct_wrong_ratio), digits = 2)
+        tip = rand(1:10)
+        Totgames = sum(win_loss_ratio)
+        if Totgames > 10 && percent < 50 && tip == 1
+                println("Hey, not to be rude, but you are making a lot poor calls... you may want to consider checking out the basic strategy chart.")
+        elseif Totgames == 10 && percent > 80 && tip == 1 || Totgames == 20 && percent > 80 && tip == 1 || Totgames == 30 && percent > 80 && tip == 1
+                println("Hey! You are getting pretty good at this!")
+                println("You have gotten ",correct_wrong_ratio[1]," calls right, and ", correct_wrong_ratio[2], " calls wrong. This makes your right/wrong record ", percent,"%")
+        elseif Totgames == 25 && percent == 100 && tip == 1
+                println("You know basic strategy like the back of your hand! AWESOME WORK! You haven't made a bad call yet!")
+                println("You have gotten ",correct_wrong_ratio[1]," calls right, and ", correct_wrong_ratio[2], " calls wrong. This makes your right/wrong record ", percent,"%")
+        end
 
         Play_Again = readline()
 
@@ -687,56 +783,23 @@ function Want2PlayAgain(Deck, streak, longest_streak, correct_wrong_ratio, win_l
                 SeeStats(streak, longest_streak, correct_wrong_ratio, win_loss_ratio)
 
         end
-        return Play_Again, Deck
+        return Play_Again, Deck, RunningCount
 end
 
 function NumberOfDecks()
-        flag = 1
         numofdecks = 0
         numofdecks_string = readline()
 
-        while numofdecks_string == ""
-                if numofdecks_string == ""
-                        println("Sorry that is not a valid input. Please choose a value from 1 to 9!")
+        values = ["9" ,"8","7", "6" ,"5", "4" ,"3" ,"2" ,"1"]
+        a = numofdecks_string in values
+        while a == false
+                if a == false
+                        println("Invalid Input. Please Try Again!")
                         numofdecks_string = readline()
+                        a = numofdecks_string in values
                 end
         end
-
-        ASCII_First = Int(numofdecks_string[1])
-        ASCII_Last = Int(numofdecks_string[length(numofdecks_string)])
-
-        while flag > 0
-                if ASCII_First == 49 && ASCII_First == ASCII_Last || ASCII_First == 50 && ASCII_First == ASCII_Last || ASCII_First == 51 && ASCII_First == ASCII_Last || ASCII_First == 52 && ASCII_First == ASCII_Last || ASCII_First == 53 && ASCII_First == ASCII_Last || ASCII_First == 54 && ASCII_First == ASCII_Last || ASCII_First == 55 && ASCII_First == ASCII_Last || ASCII_First == 56 && ASCII_First == ASCII_Last || ASCII_First == 57 && ASCII_First == ASCII_Last
-                        numofdecks = parse(Int64, numofdecks_string)
-                        flag = 0
-                else
-                        println("Sorry that is not a valid input. Please try again!")
-                        numofdecks_string = readline()
-                        while numofdecks_string == ""
-                                if numofdecks_string == ""
-                                        println("Sorry that is not a valid input. Please try again!")
-                                        numofdecks_string = readline()
-                                end
-                        end
-                        ASCII_First = Int(numofdecks_string[1])
-                        ASCII_Last = Int(numofdecks_string[length(numofdecks_string)])
-                        flag += 1
-                end
-
-                if flag > 2
-                        println("Sorry that is not a valid input. Please choose a value from 1 to 9!")
-                        numofdecks_string = readline()
-                        while numofdecks_string == ""
-                                if numofdecks_string == ""
-                                        println("Sorry that is not a valid input. Please try again!")
-                                        numofdecks_string = readline()
-                                end
-                        end
-                        ASCII_First = Int(numofdecks_string[1])
-                        ASCII_Last = Int(numofdecks_string[length(numofdecks_string)])
-                        flag = 1
-                end
-        end
+        numofdecks = parse(Int64, numofdecks_string)
         println("_____________________________________________________________________________________________________________________________")
         return numofdecks
 end
@@ -757,6 +820,32 @@ function CardFace(numofdecks, Index, CardFace)
         return CardFace1
 end
 
+function PopQuiz()
+        frequency = readline()
+        values = ["never", "low", "medium", "high", "always"]
+        a = frequency in values
+        while a == false
+                if a == false
+                        println("Invalid Input. Please Try Again!")
+                        frequency = readline()
+                        a = frequency in values
+                end
+        end
+
+        if frquency == "never"
+                pop = 0
+        elseif frequency == "low"
+                pop = 10
+        elseif frequency == "medium"
+                pop = 3
+        elseif frequency == "high"
+                pop = 2
+        else
+                pop = 1
+        end
+return pop
+end
+
 function YesOrNo(yesno)
         UhOh = 0
         while yesno != "y" && yesno != "n"
@@ -772,12 +861,17 @@ function YesOrNo(yesno)
 end
 
 function SeeStats(streak, longest_streak, correct_wrong_ratio, win_loss_ratio)
-        percent1 = round(100*correct_wrong_ratio[1]/sum(correct_wrong_ratio), digits = 2)
+        percent1 = round(100*correct_wrong_ratio[1]/(correct_wrong_ratio[1] + correct_wrong_ratio[2]), digits = 2)
         percent2 = round(100*win_loss_ratio[1]/(win_loss_ratio[1]+win_loss_ratio[2]), digits = 2)
+        percent3 = round(100*correct_wrong_ratio[3]/(correct_wrong_ratio[3] + correct_wrong_ratio[4]), digits = 2)
+
         println("____________ You have played ", sum(win_loss_ratio)," games! ____________")
         println("~ Your Correct/ Incorrect Call Record is ~")
         println("Your current correct call streak is ",streak,", and your longest correct call streak is ", longest_streak)
         println("You have gotten ",correct_wrong_ratio[1]," calls right, and ", correct_wrong_ratio[2], " calls wrong. This makes your right/wrong record ", percent1,"%")
+        if correct_wrong_ratio[3] != 0 && correct_wrong_ratio[4] != 0
+                println("You have gotten ",correct_wrong_ratio[3]," running count quizzes right, and ", correct_wrong_ratio[4], "  wrong. This makes your running count quiz accuracy ", percent3,"%")
+        end
         println("~ Your Win/ Loss Record is ~")
         println("You have won ",win_loss_ratio[1]," games, lost ", win_loss_ratio[2], " and tied ", win_loss_ratio[3],". This makes your win/loss record ", percent2,"%")
 end
