@@ -29,10 +29,10 @@ function Blackjack()
         numofdecks = NumberOfDecks()
 
 
-        println("_____________________________________________________________________________________________________________________________")
         println("How frequently do you want to be quizzed on the Running Count? ('never', 'low', 'medium', 'high', 'always')")
         println("This can ~NOT~ be changed later.")
         pop = PopQuiz()
+        println("_____________________________________________________________________________________________________________________________")
 
         Play_Again = "y"
         # New Game Original Deck
@@ -152,7 +152,6 @@ function Blackjack()
                                                             RunningCount -= 1
                                                         end
                                                 end
-                                                println(RunningCount)
 
                                         else
                                                 while What_You_Do == "split"
@@ -175,7 +174,6 @@ function Blackjack()
                                                     RunningCount -= 1
                                                 end
                                         end
-                                        println(RunningCount)
                                         First_Card, Second_Card, Next_Card, Tot_Next_Card, Your_Sum, biteme = SomeoneHasAce(First_Card, Second_Card, Next_Card, Tot_Next_Card, Your_Sum, biteme)
                                         IdiotAlert = 0
                                 end
@@ -240,7 +238,6 @@ function Blackjack()
                         end
                         win_loss_ratio = DidYouWin(Your_Sum, Dealer_Sum, Second_Dealer_Card, Tot_Next_Card, win_loss_ratio, BlackjackFlag)
                 end
-
                 Play_Again, Deck, RunningCount = Want2PlayAgain(Deck, streak, longest_streak, correct_wrong_ratio, win_loss_ratio, RunningCount, pop)
 
                 ShuffleFlag = 0
@@ -352,7 +349,6 @@ function PlayAgain(Deck, numofdecks, RunningCount)
                     RunningCount -= 1
                 end
         end
-        println(RunningCount, Count)
 
         return First_Card, Second_Card, Dealer_Card, Second_Dealer_Card, CardFaces, RunningCount
 end
@@ -456,7 +452,6 @@ function Dealer(Dealer_Card, Second_Dealer_Card, Next_Dealer_Card, Tot_Next_Deal
                             RunningCount -= 1
                         end
                 end
-                println(RunningCount)
         end
         return Dealer_Sum, Deck, Next_Dealer_Card, Tot_Next_Dealer_Card, RunningCount
 end
@@ -614,7 +609,8 @@ function What_do_you_do(First_Card, Second_Card, Tot_Next_Card, Dealer_Card, Car
                 WRONG += 1
                 streak = 0
         end
-        correct_wrong_ratio = [RIGHT WRONG]
+        correct_wrong_ratio[1] = RIGHT
+        correct_wrong_ratio[2] = WRONG
         return What_You_Do, Your_Sum, streak, longest_streak, correct_wrong_ratio
 end
 
@@ -696,7 +692,6 @@ end
 
 function Want2PlayAgain(Deck, streak, longest_streak, correct_wrong_ratio, win_loss_ratio, RunningCount, pop)
         println("_____________________________________________________________________________________________________________________________")
-
         Totgames = sum(win_loss_ratio)
         popq = 0
         if pop != 0
@@ -725,7 +720,6 @@ function Want2PlayAgain(Deck, streak, longest_streak, correct_wrong_ratio, win_l
                         correct_wrong_ratio[4] += 1
                 end
                         println("_____________________________________________________________________________________________________________________________")
-                end
         end
 
         println("Want to Play Again? (y or n)")
@@ -735,7 +729,7 @@ function Want2PlayAgain(Deck, streak, longest_streak, correct_wrong_ratio, win_l
         ChartFlag = 0
         RulesFlag = 0
 
-        percent = round(100*correct_wrong_ratio[1]/sum(correct_wrong_ratio), digits = 2)
+        percent = round(100*correct_wrong_ratio[1]/(correct_wrong_ratio[1]+correct_wrong_ratio[2]), digits = 2)
         tip = rand(1:10)
         Totgames = sum(win_loss_ratio)
         if Totgames > 10 && percent < 50 && tip == 1
@@ -834,7 +828,7 @@ function PopQuiz()
                 end
         end
 
-        if frquency == "never"
+        if frequency == "never"
                 pop = 0
         elseif frequency == "low"
                 pop = 10
