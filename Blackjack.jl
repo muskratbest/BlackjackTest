@@ -468,17 +468,13 @@ function What_do_you_do(First_Card, Second_Card, Tot_Next_Card, Dealer_Card, Car
 
         if CardFaces[1] == CardFaces[2] && Tot_Next_Card == 0 && SplitFlag == 0
                 if First_Card < 4
-                        if Dealer_Card < 8
+                        if Dealer_Card < 8 && Dealer_Card > 3
                                 correct = "split"
                         else
                                 correct = "hit"
                         end
                 elseif First_Card == 4
-                        if Dealer_Card == 5 || Dealer_Card == 6
-                                correct = "split"
-                        else
-                                correct = "hit"
-                        end
+                        correct = "hit"
                 elseif First_Card == 5
                         if Dealer_Card < 10
                                 correct = "double"
@@ -486,19 +482,19 @@ function What_do_you_do(First_Card, Second_Card, Tot_Next_Card, Dealer_Card, Car
                                 correct = "hit"
                         end
                 elseif First_Card == 6
-                        if Dealer_Card < 8
+                        if Dealer_Card < 7
                                 correct = "split"
                         else
                                 correct = "hit"
                         end
                 elseif First_Card == 7
-                        if Dealer_Card < 9
+                        if Dealer_Card < 8
                                 correct = "split"
                         else
                                 correct = "hit"
                         end
                 elseif First_Card == 9
-                        if Dealer_Card == 6 || Dealer_Card > 9
+                        if Dealer_Card == 7 || Dealer_Card > 9
                                 correct = "stand"
                         else
                                 correct = "split"
@@ -549,20 +545,20 @@ function What_do_you_do(First_Card, Second_Card, Tot_Next_Card, Dealer_Card, Car
                         correct = "stand"
                 end
         else #No Ace and No Split Option
-                if Your_Sum < 8
+                if Your_Sum < 9
                         correct = "hit"
 
                 elseif Your_Sum == 9
-                        if Dealer_Card > 6 || Tot_Next_Card != 0
-                                correct = "hit"
-                        else
+                        if Dealer_Card < 7 && Tot_Next_Card == 0
                                 correct = "double"
+                        else
+                                correct = "hit"
                         end
                 elseif Your_Sum == 10
-                        if Dealer_Card > 9 || Tot_Next_Card != 0
-                                correct = "hit"
-                        else
+                        if Dealer_Card < 10 && Tot_Next_Card == 0
                                 correct = "double"
+                        else
+                                correct = "hit"
                         end
                 elseif Your_Sum == 11
                         if Tot_Next_Card == 0
@@ -577,16 +573,8 @@ function What_do_you_do(First_Card, Second_Card, Tot_Next_Card, Dealer_Card, Car
                                 correct = "hit"
                         end
 
-                elseif Your_Sum == 13
-                        if Dealer_Card < 7
-                                correct = "stand"
-                        else
-                                correct = "hit"
-                        end
-
                 elseif Your_Sum > 16
                         correct = "stand"
-
                 else
                         if Dealer_Card < 7
                                 correct = "stand"
@@ -855,7 +843,7 @@ function YesOrNo(yesno)
         end
         return yesno
 end
-
+st
 function SeeStats(streak, longest_streak, correct_wrong_ratio, win_loss_ratio)
         percent1 = round(100*correct_wrong_ratio[1]/(correct_wrong_ratio[1] + correct_wrong_ratio[2]), digits = 2)
         percent2 = round(100*win_loss_ratio[1]/(win_loss_ratio[1]+win_loss_ratio[2]), digits = 2)
@@ -865,8 +853,8 @@ function SeeStats(streak, longest_streak, correct_wrong_ratio, win_loss_ratio)
         println("~ Your Correct/ Incorrect Call Record is ~")
         println("Your current correct call streak is ",streak,", and your longest correct call streak is ", longest_streak)
         println("You have gotten ",correct_wrong_ratio[1]," calls right, and ", correct_wrong_ratio[2], " calls wrong. This makes your right/wrong record ", percent1,"%")
-        if correct_wrong_ratio[3] != 0 && correct_wrong_ratio[4] != 0
-                println("You have gotten ",correct_wrong_ratio[3]," running count quizzes right, and ", correct_wrong_ratio[4], "  wrong. This makes your running count quiz accuracy ", percent3,"%")
+        if correct_wrong_ratio[3] != 0 || correct_wrong_ratio[4] != 0
+                println("You have gotten ",correct_wrong_ratio[3]," running count quizzes right, and ", correct_wrong_ratio[4], " wrong. This makes your running count quiz accuracy ", percent3,"%")
         end
         println("~ Your Win/ Loss Record is ~")
         println("You have won ",win_loss_ratio[1]," games, lost ", win_loss_ratio[2], " and tied ", win_loss_ratio[3],". This makes your win/loss record ", percent2,"%")
