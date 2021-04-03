@@ -490,7 +490,7 @@ function What_do_you_do(First_Card, Second_Card, Tot_Next_Card, Dealer_Card, Car
 
         What_You_Do = readline()
 
-        What_You_Do = NiceTry(What_You_Do, Tot_Next_Card, CardFaces)
+        What_You_Do = NiceTry(What_You_Do, Tot_Next_Card, CardFaces, SplitFlag)
 
         if CardFaces[1] == CardFaces[2] && Tot_Next_Card == 0 && SplitFlag == 0
                 if First_Card < 4
@@ -632,7 +632,7 @@ function What_do_you_do(First_Card, Second_Card, Tot_Next_Card, Dealer_Card, Car
         return What_You_Do, Your_Sum, streak, longest_streak, correct_wrong_ratio
 end
 
-function NiceTry(What_You_Do, Tot_Next_Card, CardFaces)
+function NiceTry(What_You_Do, Tot_Next_Card, CardFaces, SplitFlag)
         UhOh = 0
         while What_You_Do != "stand" && What_You_Do != "hit" && What_You_Do != "double" && What_You_Do != "split"
                 if What_You_Do != "stand" && What_You_Do != "hit" && What_You_Do != "double" && What_You_Do != "split"
@@ -669,6 +669,11 @@ function NiceTry(What_You_Do, Tot_Next_Card, CardFaces)
                                 What_You_Do = readline()
                         end
                 end
+        end
+
+        if SplitFlag > 0 && CardFaces[1] == "Ace" && What_You_Do != "stand" || SplitFlag > 0 && CardFaces[2] == "Ace" && What_You_Do != "stand"
+                What_You_Do = "stand"
+                println("LOL nice try buddy, but the casino would never give you another card after splitting Aces! Casino forces you to stand")
         end
 
         return What_You_Do
