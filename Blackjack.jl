@@ -28,6 +28,17 @@ function Blackjack()
         println("This can ~NOT~ be changed later.")
         numofdecks = NumberOfDecks()
 
+        println("Would you like to practice Basic Strategy and see the correct and incorrect calls after each decision? (y or n)")
+        println("This can ~NOT~ be changed later.")
+        BS_Flag = readline()
+        chart = YesOrNo(BS_Flag)
+
+        if BS_Flag == "y"
+                BSFlag = 1
+        else
+                BSFlag = 0
+        end
+        println("_____________________________________________________________________________________________________________________________")
 
         println("How frequently do you want to be quizzed on the Running Count? ('never', 'low', 'medium', 'high', 'always')")
         println("This can ~NOT~ be changed later.")
@@ -109,7 +120,7 @@ function Blackjack()
                                         end
                                 end
                                 if Your_Sum != 21 || IdiotAlert == 1
-                                        What_You_Do, Your_Sum, streak, longest_streak, correct_wrong_ratio = What_do_you_do(First_Card, Second_Card, Tot_Next_Card, Dealer_Card, CardFaces, SplitFlag, streak, longest_streak, win_loss_ratio, correct_wrong_ratio)
+                                        What_You_Do, Your_Sum, streak, longest_streak, correct_wrong_ratio = What_do_you_do(First_Card, Second_Card, Tot_Next_Card, Dealer_Card, CardFaces, SplitFlag, streak, longest_streak, win_loss_ratio, correct_wrong_ratio, BSFlag)
                                 end
 
                                 if What_You_Do == "split"
@@ -212,7 +223,8 @@ function Blackjack()
                 end
 
                 while abort != "YES"
-                        Dealer_Sum, Deck, Next_Dealer_Card, Tot_Next_Dealer_Card, RunningCount = Dealer(Dealer_Card, Second_Dealer_Card, Next_Dealer_Card, Tot_Next_Dealer_Card, Deck, numofdecks, Your_Sum, RunningCount)
+                        biteme = 0
+                        Dealer_Sum, Deck, Next_Dealer_Card, Tot_Next_Dealer_Card, RunningCount = Dealer(Dealer_Card, Second_Dealer_Card, Next_Dealer_Card, Tot_Next_Dealer_Card, Deck, numofdecks, Your_Sum, RunningCount, biteme)
                         Dealer_Card, Second_Dealer_Card, Next_Dealer_Card, Tot_Next_Dealer_Card, Dealer_Sum, biteme = SomeoneHasAce(Dealer_Card, Second_Dealer_Card, Next_Dealer_Card, Tot_Next_Dealer_Card, Dealer_Sum, biteme)
                         if Dealer_Sum > 17 || Dealer_Sum == 17
                                 abort = "YES"
@@ -378,7 +390,7 @@ function SomeoneHasAce(Card1, Card2, CardNew, TotCardNew, CardSum, biteme)
         AceFlag = 0
         while abort != "YES"
                 for i in [Card1 Card2 CardNew]
-                        if i == 11
+                        if i == 11 || biteme == 1
                                 AceFlag = 1
                         end
                 end
@@ -424,9 +436,16 @@ function SomeoneHasAce(Card1, Card2, CardNew, TotCardNew, CardSum, biteme)
         return Card1, Card2, CardNew, TotCardNew, CardSum, biteme
 end
 
-function Dealer(Dealer_Card, Second_Dealer_Card, Next_Dealer_Card, Tot_Next_Dealer_Card, Deck, numofdecks, Your_Sum, RunningCount)
+function Dealer(Dealer_Card, Second_Dealer_Card, Next_Dealer_Card, Tot_Next_Dealer_Card, Deck, numofdecks, Your_Sum, RunningCount, biteme)
         Dealer_Sum = Dealer_Card + Second_Dealer_Card + Tot_Next_Dealer_Card
-        while Dealer_Sum < 17 && Your_Sum < 22
+
+        if Dealer_Card == 11 && Dealer_Sum == 17 || Second_Dealer_Card == 11 && Dealer_Sum == 17 || Next_Dealer_Card == 11 && Dealer_Sum == 17
+                soft17 = 1
+        else
+                soft17 = 0
+        end
+
+        while Dealer_Sum < 17 && Your_Sum < 22 || soft17 == 1 && Your_Sum < 22
                 Next_Dealer_Card_Index = rand(1:length(Deck))
                 Next_Dealer_Card = Deck[Next_Dealer_Card_Index]
                 while Next_Dealer_Card == 0
@@ -444,6 +463,12 @@ function Dealer(Dealer_Card, Second_Dealer_Card, Next_Dealer_Card, Tot_Next_Deal
                 Deck[Next_Dealer_Card_Index] = 0
                 println("The Dealer's Next Card is ", CardFaceDealerNext)
 
+                if Dealer_Card == 11 && Dealer_Sum == 17 || Second_Dealer_Card == 11 && Dealer_Sum == 17 || Next_Dealer_Card == 11 && Dealer_Sum == 17
+                        soft17 = 1
+                else
+                        soft17 = 0
+                end
+
                 Count = [Next_Dealer_Card]
                 for i in Count
                         if i in [2, 3, 4, 5, 6]
@@ -452,11 +477,12 @@ function Dealer(Dealer_Card, Second_Dealer_Card, Next_Dealer_Card, Tot_Next_Deal
                             RunningCount -= 1
                         end
                 end
+                Dealer_Card, Second_Dealer_Card, Next_Dealer_Card, Tot_Next_Dealer_Card, Dealer_Sum, biteme = SomeoneHasAce(Dealer_Card, Second_Dealer_Card, Next_Dealer_Card, Tot_Next_Dealer_Card, Dealer_Sum, biteme)
         end
         return Dealer_Sum, Deck, Next_Dealer_Card, Tot_Next_Dealer_Card, RunningCount
 end
 
-function What_do_you_do(First_Card, Second_Card, Tot_Next_Card, Dealer_Card, CardFaces, SplitFlag, streak, longest_streak, win_loss_ratio, correct_wrong_ratio)
+function What_do_you_do(First_Card, Second_Card, Tot_Next_Card, Dealer_Card, CardFaces, SplitFlag, streak, longest_streak, win_loss_ratio, correct_wrong_ratio, BSFlag)
         RIGHT = correct_wrong_ratio[1]
         WRONG = correct_wrong_ratio[2]
         Your_Sum = First_Card + Second_Card + Tot_Next_Card
@@ -585,7 +611,9 @@ function What_do_you_do(First_Card, Second_Card, Tot_Next_Card, Dealer_Card, Car
         end
 
         if correct == What_You_Do
-                println("CORRECT")
+                if BSFlag == 1
+                        println("CORRECT")
+                end
                 streak += 1
                 RIGHT += 1
 
@@ -593,7 +621,9 @@ function What_do_you_do(First_Card, Second_Card, Tot_Next_Card, Dealer_Card, Car
                         longest_streak = streak
                 end
         else
-                println("WRONG... The correct answer is *", correct,"*")
+                if BSFlag == 1
+                        println("WRONG... The correct answer is *", correct,"*")
+                end
                 WRONG += 1
                 streak = 0
         end
@@ -763,7 +793,6 @@ function Want2PlayAgain(Deck, streak, longest_streak, correct_wrong_ratio, win_l
         else
                 println("_____________________________________________________________________________________________________________________________")
                 println("Thanks for Playing! Here are your stats for the session!")
-                println("_____________________________________________________________________________________________________________________________")
                 SeeStats(streak, longest_streak, correct_wrong_ratio, win_loss_ratio)
 
         end
@@ -837,13 +866,13 @@ function YesOrNo(yesno)
                 yesno = readline()
                 UhOh += 1
                 if UhOh > 1 && yesno != "y" && yesno != "n"
-                        println("Sorry, that was not a valid input. Remember, the valid inputs are 'y' meaning you have played, or 'n' you have not played.")
+                        println("Sorry, that was not a valid input. Remember, the valid inputs are 'y' or 'n' here.")
                         yesno = readline()
                 end
         end
         return yesno
 end
-st
+
 function SeeStats(streak, longest_streak, correct_wrong_ratio, win_loss_ratio)
         percent1 = round(100*correct_wrong_ratio[1]/(correct_wrong_ratio[1] + correct_wrong_ratio[2]), digits = 2)
         percent2 = round(100*win_loss_ratio[1]/(win_loss_ratio[1]+win_loss_ratio[2]), digits = 2)
@@ -880,7 +909,7 @@ Rules:
         To win in the game of Blackjack, you want the sum of your cards to be as close to 21 as possible without going over.
         If the sum of your first two cards is 21, that is a Blackjack!
         So long as the dealer does not also have a Blackjack, you will win some extra cash on top of your bet.
-        The dealer will hit until they have a sum of 17 or greater. Currently, dealer stands on a soft 17.
+        The dealer will hit until they have a sum of 17 or greater. The dealer will also hit on a soft 17.
 
         You can choose to Stand, which means you end your turn and will not receive more cards.
         Hit, which means you receive an additional card and can choose to either hit again or stand.
